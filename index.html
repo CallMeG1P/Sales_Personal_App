@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sales Map Tracker & CRM</title>
   
-  <!-- Leaflet CSS & JS (Peta Gratis) -->
+  <!-- Leaflet CSS & JS (Peta) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
@@ -13,54 +13,302 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { margin: 0; padding: 0; background: #f4f6f8; color: #333; }
+    /* ==========================================
+       NEUMORPHISM GREEN THEME STYLES
+       Base Color: #e6eee9 (Soft Greenish-Gray)
+       Primary Accent: #2e7d32 / #10b981 (Emerald Green)
+       Shadow light: #ffffff
+       Shadow dark: #c8d3cc
+       ========================================== */
+    * { 
+      box-sizing: border-box; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+    }
     
+    body { 
+      margin: 0; 
+      padding: 0; 
+      background: #e6eee9; 
+      color: #2d3748; 
+    }
+
     /* LOGIN CONTAINER */
-    .login-wrapper { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; background: #eef2f5; }
-    .login-card { background: #fff; padding: 30px; border-radius: 12px; width: 100%; max-width: 380px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    .login-card h2 { text-align: center; margin-top: 0; margin-bottom: 20px; color: #007bff; }
+    .login-wrapper { 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 100vh; 
+      padding: 20px; 
+    }
+
+    .login-card { 
+      background: #e6eee9; 
+      padding: 35px 25px; 
+      border-radius: 20px; 
+      width: 100%; 
+      max-width: 380px; 
+      box-shadow: 9px 9px 18px #c8d3cc, -9px -9px 18px #ffffff; 
+    }
+
+    .login-card h2 { 
+      text-align: center; 
+      margin-top: 0; 
+      margin-bottom: 25px; 
+      color: #2e7d32; 
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
 
     /* MAIN APP CONTAINER */
-    #app-content { display: none; padding: 15px; max-width: 1100px; margin: 0 auto; }
+    #app-content { 
+      display: none; 
+      padding: 15px; 
+      max-width: 1100px; 
+      margin: 0 auto; 
+    }
     
     /* NAVBAR */
-    .navbar { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px 20px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .navbar h3 { margin: 0; font-size: 18px; color: #007bff; }
-    .btn-logout { background: #dc3545; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .navbar { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      background: #e6eee9; 
+      padding: 15px 20px; 
+      border-radius: 16px; 
+      margin-bottom: 20px; 
+      box-shadow: 6px 6px 12px #c8d3cc, -6px -6px 12px #ffffff; 
+    }
 
-    /* LAYOUT GRID */
-    #map { height: 350px; width: 100%; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ddd; z-index: 1; }
-    .card { background: #fff; padding: 18px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .card h3 { margin-top: 0; font-size: 16px; border-bottom: 2px solid #f4f6f8; padding-bottom: 8px; }
+    .navbar h3 { 
+      margin: 0; 
+      font-size: 18px; 
+      color: #2e7d32; 
+      font-weight: 700;
+    }
+
+    /* CARDS & PETA */
+    .card { 
+      background: #e6eee9; 
+      padding: 20px; 
+      border-radius: 18px; 
+      margin-bottom: 25px; 
+      box-shadow: 7px 7px 14px #c8d3cc, -7px -7px 14px #ffffff; 
+    }
+
+    .card h3 { 
+      margin-top: 0; 
+      font-size: 16px; 
+      color: #1b4332;
+      border-bottom: 2px solid #d1ded6; 
+      padding-bottom: 10px; 
+      margin-bottom: 18px;
+    }
+
+    #map { 
+      height: 350px; 
+      width: 100%; 
+      border-radius: 18px; 
+      margin-bottom: 25px; 
+      box-shadow: inset 4px 4px 8px #c8d3cc, inset -4px -4px 8px #ffffff; 
+      border: 3px solid #e6eee9;
+      z-index: 1; 
+    }
 
     /* FORM STYLES */
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-    .form-group { display: flex; flex-direction: column; gap: 4px; }
-    label { font-size: 12px; font-weight: bold; color: #555; }
-    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-    
-    .btn { background: #007bff; color: #fff; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    .btn:hover { background: #0056b3; }
-    .btn-secondary { background: #6c757d; }
-    .btn-danger { background: #dc3545; }
+    .form-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+      gap: 15px; 
+    }
+
+    .form-group { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 6px; 
+    }
+
+    label { 
+      font-size: 12px; 
+      font-weight: 700; 
+      color: #4a5568; 
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Inset Soft Input untuk Neumorphism */
+    input, select, textarea { 
+      width: 100%; 
+      padding: 12px; 
+      background: #e6eee9;
+      border: none; 
+      border-radius: 12px; 
+      font-size: 14px; 
+      color: #2d3748;
+      box-shadow: inset 3px 3px 6px #c8d3cc, inset -3px -3px 6px #ffffff;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      box-shadow: inset 1px 1px 2px #c8d3cc, inset -1px -1px 2px #ffffff, 0 0 0 2px #10b981;
+    }
+
+    /* BUTTONS */
+    .btn { 
+      background: linear-gradient(145deg, #328a37, #2a712d); 
+      color: #fff; 
+      border: none; 
+      padding: 12px 18px; 
+      border-radius: 12px; 
+      cursor: pointer; 
+      font-weight: 600; 
+      box-shadow: 4px 4px 8px #c8d3cc, -4px -4px 8px #ffffff;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn:active {
+      box-shadow: inset 3px 3px 6px #225a24, inset -3px -3px 6px #3ea042;
+    }
+
+    .btn-secondary { 
+      background: linear-gradient(145deg, #78828a, #656d74); 
+      color: #fff;
+    }
+
+    .btn-secondary:active {
+      box-shadow: inset 3px 3px 6px #50575d, inset -3px -3px 6px #909ca6;
+    }
+
+    .btn-danger, .btn-logout { 
+      background: linear-gradient(145deg, #e53935, #c62828); 
+      color: #fff; 
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 4px 4px 8px #c8d3cc, -4px -4px 8px #ffffff;
+    }
+
+    .btn-danger:active, .btn-logout:active {
+      box-shadow: inset 3px 3px 6px #9a1f1f, inset -3px -3px 6px #f64343;
+    }
+
+    .btn-gps {
+      background: linear-gradient(145deg, #059669, #047857);
+    }
 
     /* TABLE STYLES */
-    .table-responsive { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-    th, td { padding: 10px 12px; border-bottom: 1px solid #eee; text-align: left; }
-    th { background: #f8f9fa; color: #444; }
-    .badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
-    .badge-rencana { background: #fff3cd; color: #856404; }
-    .badge-sudah { background: #d4edda; color: #155724; }
-    .distance-tag { color: #007bff; font-weight: bold; }
+    .table-responsive { 
+      overflow-x: auto; 
+      border-radius: 12px;
+      box-shadow: inset 2px 2px 5px #c8d3cc, inset -2px -2px 5px #ffffff;
+      padding: 5px;
+    }
 
-    /* TABS */
-    .tab-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
-    .tab-btn { flex: 1; padding: 10px; background: #e9ecef; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    .tab-btn.active { background: #007bff; color: white; }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      font-size: 13px; 
+    }
+
+    th, td { 
+      padding: 12px; 
+      text-align: left; 
+    }
+
+    th { 
+      color: #2e7d32; 
+      font-weight: 700;
+      border-bottom: 2px solid #d1ded6;
+    }
+
+    td {
+      border-bottom: 1px solid #dce5df;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* BADGES */
+    .badge { 
+      display: inline-block; 
+      padding: 4px 10px; 
+      border-radius: 8px; 
+      font-size: 11px; 
+      font-weight: 700; 
+    }
+
+    .badge-rencana { 
+      background: #fef3c7; 
+      color: #92400e; 
+      box-shadow: 2px 2px 4px #d2c8a4;
+    }
+
+    .badge-sudah { 
+      background: #d1fae5; 
+      color: #065f46; 
+      box-shadow: 2px 2px 4px #accfbe;
+    }
+
+    .distance-tag { 
+      color: #059669; 
+      font-weight: 700; 
+    }
+
+    /* TABS NAVIGASI */
+    .tab-buttons { 
+      display: flex; 
+      gap: 15px; 
+      margin-bottom: 20px; 
+    }
+
+    .tab-btn { 
+      flex: 1; 
+      padding: 12px; 
+      background: #e6eee9; 
+      border: none; 
+      border-radius: 14px; 
+      cursor: pointer; 
+      font-weight: 700; 
+      color: #55605a;
+      box-shadow: 5px 5px 10px #c8d3cc, -5px -5px 10px #ffffff;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active { 
+      color: #2e7d32; 
+      box-shadow: inset 3px 3px 6px #c8d3cc, inset -3px -3px 6px #ffffff;
+    }
+
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+
+    /* ACTION BUTTONS GROUP */
+    .action-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    /* RESPONSIVE MEDIA QUERIES */
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      #app-content { padding: 10px; }
+      .navbar { padding: 12px; flex-direction: row; }
+      .navbar h3 { font-size: 15px; }
+      #map { height: 280px; }
+      .card { padding: 15px; border-radius: 14px; }
+      .action-group { flex-direction: column; }
+      .action-group .btn { width: 100%; margin-left: 0 !important; }
+      .tab-buttons { gap: 8px; }
+      .tab-btn { font-size: 12px; padding: 10px 5px; }
+    }
   </style>
 </head>
 <body>
@@ -68,27 +316,27 @@
   <!-- 1. LAMAN LOGIN -->
   <div id="login-section" class="login-wrapper">
     <div class="login-card">
-      <h2>Sales CRM Login</h2>
+      <h2>Sales CRM</h2>
       <form id="loginForm" onsubmit="handleLogin(event)">
-        <div class="form-group" style="margin-bottom: 12px;">
+        <div class="form-group" style="margin-bottom: 15px;">
           <label>Email</label>
           <input type="email" id="loginEmail" placeholder="Masukkan email..." required>
         </div>
-        <div class="form-group" style="margin-bottom: 20px;">
+        <div class="form-group" style="margin-bottom: 25px;">
           <label>Password</label>
           <input type="password" id="loginPassword" placeholder="Masukkan password..." required>
         </div>
-        <button type="submit" class="btn" style="width: 100%;">Masuk / Login</button>
+        <button type="submit" class="btn" style="width: 100%;">Masuk Aplikasi</button>
       </form>
     </div>
   </div>
 
-  <!-- 2. DASHBOARD & APLIKASI UTAMA (SETELAH LOGIN) -->
+  <!-- 2. DASHBOARD UTAMA -->
   <div id="app-content">
     
     <!-- NAVBAR -->
     <div class="navbar">
-      <h3>📍 Sales School Tracker</h3>
+      <h3>📍 Sales Tracker</h3>
       <button onclick="handleLogout()" class="btn-logout">Logout</button>
     </div>
 
@@ -97,8 +345,8 @@
 
     <!-- TOMBOL TAB NAVIGASI -->
     <div class="tab-buttons">
-      <button class="tab-btn active" onclick="switchTab('sekolah-tab', this)">📍 Daftar Sekolah (Terdekat)</button>
-      <button class="tab-btn" onclick="switchTab('catatan-tab', this)">📝 Catatan & Laporan Pribadi</button>
+      <button class="tab-btn active" onclick="switchTab('sekolah-tab', this)">📍 Sekolah Terdekat</button>
+      <button class="tab-btn" onclick="switchTab('catatan-tab', this)">📝 Catatan & Laporan</button>
     </div>
 
     <!-- TAB 1: MANAJEMEN SEKOLAH -->
@@ -139,26 +387,26 @@
           </div>
         </div>
 
-        <div class="form-group" style="margin-top: 10px;">
+        <div class="form-group" style="margin-top: 12px;">
           <label>Kontak Person (CP / HP)</label>
           <input type="text" id="kontakPerson" placeholder="Misal: Pak Budi - Kepsek (0812xxx)">
         </div>
 
-        <div class="form-group" style="margin-top: 10px;">
+        <div class="form-group" style="margin-top: 12px;">
           <label>Catatan Lapangan / Hasil Obrolan</label>
           <textarea id="catatan" rows="2" placeholder="Catat detail penawaran atau janji temu..."></textarea>
         </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <div class="action-group">
           <button onclick="simpanSekolah()" class="btn" id="btnSimpanSekolah">Simpan Data</button>
           <button onclick="resetFormSekolah()" class="btn btn-secondary">Batal / Reset</button>
-          <button onclick="getGPSLocation()" class="btn" style="background:#28a745; margin-left:auto;">📍 Lokasi Saya Saat Ini</button>
+          <button onclick="getGPSLocation()" class="btn btn-gps" style="margin-left: auto;">📍 Lokasi Saya Saat Ini</button>
         </div>
       </div>
 
       <!-- TABEL DAFTAR SEKOLAH (SORTED BY NEAREST) -->
       <div class="card">
-        <h3>Daftar Sekolah (Diurutkan dari Jarak Terdekat)</h3>
+        <h3>Daftar Sekolah (Urut Jarak Terdekat)</h3>
         <div class="table-responsive">
           <table>
             <thead>
@@ -181,7 +429,7 @@
 
     </div>
 
-    <!-- TAB 2: CATATAN PRIBADI / DASHBOARD LAPORAN -->
+    <!-- TAB 2: CATATAN PRIBADI -->
     <div id="catatan-tab" class="tab-content">
       
       <!-- FORM CATATAN PRIBADI -->
@@ -189,16 +437,16 @@
         <h3 id="noteFormTitle">Tambah Catatan Pribadi / Laporan</h3>
         <input type="hidden" id="editNoteId">
         
-        <div class="form-group" style="margin-bottom: 10px;">
+        <div class="form-group" style="margin-bottom: 12px;">
           <label>Judul Catatan / Target</label>
           <input type="text" id="judulCatatan" placeholder="Contoh: Evaluasi Target Minggu Ke-2">
         </div>
-        <div class="form-group" style="margin-bottom: 10px;">
+        <div class="form-group" style="margin-bottom: 12px;">
           <label>Isi Ringkasan / Laporan</label>
           <textarea id="isiCatatan" rows="4" placeholder="Tulis strategi, catatan mandiri, atau evaluasi harian..."></textarea>
         </div>
 
-        <div style="display: flex; gap: 10px;">
+        <div class="action-group">
           <button onclick="simpanCatatan()" class="btn" id="btnSimpanNote">Simpan Catatan</button>
           <button onclick="resetFormNote()" class="btn btn-secondary">Batal</button>
         </div>
@@ -220,22 +468,20 @@
     // ==========================================
     // 1. CONFIG SUPABASE
     // ==========================================
-    // SAMAKAN DENGAN URL DAN ANON KEY DI SUPABASE KAMU
-    const SUPABASE_URL = "https://oqvqbgpcgxkdsjsfwegz.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_CYObrBKZgPIZtLpr14VcYA_W3Nez0oi";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const SUPABASE_URL = "https://oqvqbgpcgxkdsjsfwegz.supabase.co"; //[cite: 3]
+    const SUPABASE_KEY = "sb_publishable_CYObrBKZgPIZtLpr14VcYA_W3Nez0oi"; //[cite: 3]
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); //[cite: 3]
 
     let map;
     let markers = [];
-    let userLocation = null; // Storing [lat, lng]
+    let userLocation = null; 
     let currentSchoolsData = [];
 
     // ==========================================
     // 2. AUTHENTICATION (LOGIN / LOGOUT)
     // ==========================================
     window.onload = async function() {
-      // Cek apakah user sudah punya session login
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      const { data: { session } } = await supabaseClient.auth.getSession(); //[cite: 3]
       if (session) {
         showApp();
       } else {
@@ -245,10 +491,10 @@
 
     async function handleLogin(e) {
       e.preventDefault();
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
+      const email = document.getElementById('loginEmail').value; //[cite: 3]
+      const password = document.getElementById('loginPassword').value; //[cite: 3]
 
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password }); //[cite: 3]
 
       if (error) {
         alert("Login Gagal: " + error.message);
@@ -258,18 +504,18 @@
     }
 
     async function handleLogout() {
-      await supabaseClient.auth.signOut();
+      await supabaseClient.auth.signOut(); //[cite: 3]
       showLogin();
     }
 
     function showLogin() {
-      document.getElementById('login-section').style.display = 'flex';
-      document.getElementById('app-content').style.display = 'none';
+      document.getElementById('login-section').style.display = 'flex'; //[cite: 3]
+      document.getElementById('app-content').style.display = 'none'; //[cite: 3]
     }
 
     function showApp() {
-      document.getElementById('login-section').style.display = 'none';
-      document.getElementById('app-content').style.display = 'block';
+      document.getElementById('login-section').style.display = 'none'; //[cite: 3]
+      document.getElementById('app-content').style.display = 'block'; //[cite: 3]
       initMap();
       getUserGPSAndLoadData();
       loadCatatanPribadi();
@@ -279,17 +525,16 @@
     // 3. PETA & GEOLOCATION SORTING
     // ==========================================
     function initMap() {
-      if(map) return; // Mencegah re-inisialisasi
-      map = L.map('map').setView([-6.9175, 107.6191], 12); // Default lokasi
+      if(map) return;
+      map = L.map('map').setView([-6.9175, 107.6191], 12); //[cite: 3]
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap'
-      }).addTo(map);
+      }).addTo(map); //[cite: 3]
 
-      // Listener Klik di Peta
       map.on('click', function(e) {
-        document.getElementById('latitude').value = e.latlng.lat.toFixed(6);
-        document.getElementById('longitude').value = e.latlng.lng.toFixed(6);
+        document.getElementById('latitude').value = e.latlng.lat.toFixed(6); //[cite: 3]
+        document.getElementById('longitude').value = e.latlng.lng.toFixed(6); //[cite: 3]
       });
     }
 
@@ -297,21 +542,20 @@
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            userLocation = [position.coords.latitude, position.coords.longitude];
+            userLocation = [position.coords.latitude, position.coords.longitude]; //[cite: 3]
             
-            // Tambahkan Penanda Lokasi Saya di Peta (Warna Biru / Circle)
             L.circle(userLocation, {
-              color: 'blue',
-              fillColor: '#30f',
+              color: '#059669',
+              fillColor: '#10b981',
               fillOpacity: 0.3,
-              radius: 100
-            }).addTo(map).bindPopup("<b>Posisi Kamu Saat Ini</b>");
+              radius: 120
+            }).addTo(map).bindPopup("<b>Posisi Kamu Saat Ini</b>"); //[cite: 3]
 
-            map.setView(userLocation, 13);
+            map.setView(userLocation, 13); //[cite: 3]
             loadSekolahData();
           },
           (error) => {
-            console.log("GPS Akses Ditolak/Gagal, Menggunakan lokasi default.");
+            console.log("GPS Akses Ditolak/Gagal."); //[cite: 3]
             loadSekolahData();
           }
         );
@@ -323,26 +567,25 @@
     function getGPSLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((pos) => {
-          document.getElementById('latitude').value = pos.coords.latitude.toFixed(6);
-          document.getElementById('longitude').value = pos.coords.longitude.toFixed(6);
-          alert("Lokasi GPS berhasil diambil!");
+          document.getElementById('latitude').value = pos.coords.latitude.toFixed(6); //[cite: 3]
+          document.getElementById('longitude').value = pos.coords.longitude.toFixed(6); //[cite: 3]
+          alert("Lokasi GPS berhasil diambil!"); //[cite: 3]
         });
       } else {
-        alert("Fitur GPS tidak didukung di browser ini.");
+        alert("Fitur GPS tidak didukung di browser ini."); //[cite: 3]
       }
     }
 
-    // Rumus Haversine untuk Menghitung Jarak (dalam KM)
     function calculateDistance(lat1, lon1, lat2, lon2) {
-      if (!lat1 || !lon1 || !lat2 || !lon2) return 999999;
-      const R = 6371; // Radius bumi KM
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
+      if (!lat1 || !lon1 || !lat2 || !lon2) return 999999; //[cite: 3]
+      const R = 6371; //[cite: 3]
+      const dLat = (lat2 - lat1) * Math.PI / 180; //[cite: 3]
+      const dLon = (lon2 - lon1) * Math.PI / 180; //[cite: 3]
       const a = 
         Math.sin(dLat/2) * Math.sin(dLat/2) +
         Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-        Math.sin(dLon/2) * Math.sin(dLon/2); 
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+        Math.sin(dLon/2) * Math.sin(dLon/2); //[cite: 3]
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); //[cite: 3]
       return R * c; 
     }
 
@@ -352,55 +595,49 @@
     async function loadSekolahData() {
       const { data, error } = await supabaseClient
         .from('sekolah_visits')
-        .select('*');
+        .select('*'); //[cite: 3]
 
-      if (error) return alert("Gagal memuat sekolah: " + error.message);
+      if (error) return alert("Gagal memuat sekolah: " + error.message); //[cite: 3]
 
-      // Hitung Jarak jika Lokasi User Ada
       currentSchoolsData = data.map(item => {
-        let dist = 999999;
+        let dist = 999999; //[cite: 3]
         if (userLocation) {
-          dist = calculateDistance(userLocation[0], userLocation[1], item.latitude, item.longitude);
+          dist = calculateDistance(userLocation[0], userLocation[1], item.latitude, item.longitude); //[cite: 3]
         }
         return { ...item, distance: dist };
       });
 
-      // Urutkan dari Jarak Terdekat
-      currentSchoolsData.sort((a, b) => a.distance - b.distance);
-
+      currentSchoolsData.sort((a, b) => a.distance - b.distance); //[cite: 3]
       renderSekolahUI();
     }
 
     function renderSekolahUI() {
-      // Clear markers
-      markers.forEach(m => map.removeLayer(m));
-      markers = [];
+      markers.forEach(m => map.removeLayer(m)); //[cite: 3]
+      markers = []; //[cite: 3]
 
-      const tbody = document.getElementById('tabelSekolahBody');
-      tbody.innerHTML = '';
+      const tbody = document.getElementById('tabelSekolahBody'); //[cite: 3]
+      tbody.innerHTML = ''; //[cite: 3]
 
       currentSchoolsData.forEach(item => {
-        // Render Marker
         if (item.latitude && item.longitude) {
-          const marker = L.marker([item.latitude, item.longitude]).addTo(map);
+          const marker = L.marker([item.latitude, item.longitude]).addTo(map); //[cite: 3]
           marker.bindPopup(`
-            <b>${item.nama_sekolah}</b><br>
+            <b style="color:#2e7d32;">${item.nama_sekolah}</b><br>
             Status: ${item.status_kunjungan}<br>
             Revenue: Rp ${Number(item.potensi_revenue || 0).toLocaleString('id-ID')}
-          `);
-          markers.push(marker);
+          `); //[cite: 3]
+          markers.push(marker); //[cite: 3]
         }
 
-        // Text Jarak
         const distanceText = item.distance !== 999999 
           ? `${item.distance.toFixed(1)} km` 
-          : '-';
+          : '-'; //[cite: 3]
 
         const statusBadge = item.status_kunjungan === 'Sudah Dikunjungi'
           ? `<span class="badge badge-sudah">Sudah Visit</span>`
-          : `<span class="badge badge-rencana">Rencana</span>`;
+          : `<span class="badge badge-rencana">Rencana</span>`; //[cite: 3]
 
-        const jsonRow = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+        const jsonRow = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;"); //[cite: 3]
 
         tbody.innerHTML += `
           <tr>
@@ -411,87 +648,89 @@
             <td>Rp ${Number(item.potensi_revenue || 0).toLocaleString('id-ID')}</td>
             <td>
               <small><b>CP:</b> ${item.kontak_person || '-'}</small><br>
-              <small><b>Notes:</b> ${item.catatan || '-'}</small>
+              <small style="color:#666;">${item.catatan || '-'}</small>
             </td>
             <td>
-              <button onclick='editSekolah(${jsonRow})' class="btn" style="padding:4px 8px; font-size:11px;">Edit</button>
-              <button onclick='hapusSekolah(${item.id})' class="btn btn-danger" style="padding:4px 8px; font-size:11px;">Hapus</button>
+              <div style="display:flex; gap:6px;">
+                <button onclick='editSekolah(${jsonRow})' class="btn" style="padding:5px 10px; font-size:11px;">Edit</button>
+                <button onclick='hapusSekolah(${item.id})' class="btn btn-danger" style="padding:5px 10px; font-size:11px;">Hapus</button>
+              </div>
             </td>
           </tr>
-        `;
+        `; //[cite: 3]
       });
     }
 
     async function simpanSekolah() {
-      const editId = document.getElementById('editId').value;
+      const editId = document.getElementById('editId').value; //[cite: 3]
       const payload = {
-        id: editId ? parseInt(editId) : Date.now(),
-        nama_sekolah: document.getElementById('namaSekolah').value,
-        status_kunjungan: document.getElementById('statusKunjungan').value,
-        tgl_kunjungan: document.getElementById('tglKunjungan').value || null,
-        potensi_revenue: parseFloat(document.getElementById('potensiRevenue').value) || 0,
-        latitude: parseFloat(document.getElementById('latitude').value) || 0,
-        longitude: parseFloat(document.getElementById('longitude').value) || 0,
-        kontak_person: document.getElementById('kontakPerson').value,
-        catatan: document.getElementById('catatan').value
+        id: editId ? parseInt(editId) : Date.now(), //[cite: 3]
+        nama_sekolah: document.getElementById('namaSekolah').value, //[cite: 3]
+        status_kunjungan: document.getElementById('statusKunjungan').value, //[cite: 3]
+        tgl_kunjungan: document.getElementById('tglKunjungan').value || null, //[cite: 3]
+        potensi_revenue: parseFloat(document.getElementById('potensiRevenue').value) || 0, //[cite: 3]
+        latitude: parseFloat(document.getElementById('latitude').value) || 0, //[cite: 3]
+        longitude: parseFloat(document.getElementById('longitude').value) || 0, //[cite: 3]
+        kontak_person: document.getElementById('kontakPerson').value, //[cite: 3]
+        catatan: document.getElementById('catatan').value //[cite: 3]
       };
 
       if (!payload.nama_sekolah || !payload.latitude || !payload.longitude) {
-        return alert("Nama sekolah, Latitude, dan Longitude wajib diisi!");
+        return alert("Nama sekolah, Latitude, dan Longitude wajib diisi!"); //[cite: 3]
       }
 
       let error;
       if (editId) {
-        const res = await supabaseClient.from('sekolah_visits').update(payload).eq('id', editId);
+        const res = await supabaseClient.from('sekolah_visits').update(payload).eq('id', editId); //[cite: 3]
         error = res.error;
       } else {
-        const res = await supabaseClient.from('sekolah_visits').insert([payload]);
+        const res = await supabaseClient.from('sekolah_visits').insert([payload]); //[cite: 3]
         error = res.error;
       }
 
       if (error) {
-        alert("Gagal menyimpan: " + error.message);
+        alert("Gagal menyimpan: " + error.message); //[cite: 3]
       } else {
-        alert("Data sekolah berhasil disimpan!");
+        alert("Data sekolah berhasil disimpan!"); //[cite: 3]
         resetFormSekolah();
         loadSekolahData();
       }
     }
 
     function editSekolah(item) {
-      document.getElementById('editId').value = item.id;
-      document.getElementById('namaSekolah').value = item.nama_sekolah;
-      document.getElementById('statusKunjungan').value = item.status_kunjungan;
-      document.getElementById('tglKunjungan').value = item.tgl_kunjungan || '';
-      document.getElementById('potensiRevenue').value = item.potensi_revenue || 0;
-      document.getElementById('latitude').value = item.latitude;
-      document.getElementById('longitude').value = item.longitude;
-      document.getElementById('kontakPerson').value = item.kontak_person || '';
-      document.getElementById('catatan').value = item.catatan || '';
+      document.getElementById('editId').value = item.id; //[cite: 3]
+      document.getElementById('namaSekolah').value = item.nama_sekolah; //[cite: 3]
+      document.getElementById('statusKunjungan').value = item.status_kunjungan; //[cite: 3]
+      document.getElementById('tglKunjungan').value = item.tgl_kunjungan || ''; //[cite: 3]
+      document.getElementById('potensiRevenue').value = item.potensi_revenue || 0; //[cite: 3]
+      document.getElementById('latitude').value = item.latitude; //[cite: 3]
+      document.getElementById('longitude').value = item.longitude; //[cite: 3]
+      document.getElementById('kontakPerson').value = item.kontak_person || ''; //[cite: 3]
+      document.getElementById('catatan').value = item.catatan || ''; //[cite: 3]
 
-      document.getElementById('formTitle').innerText = "Edit Data Sekolah";
-      document.getElementById('btnSimpanSekolah').innerText = "Update Data";
-      window.scrollTo({ top: 350, behavior: 'smooth' });
+      document.getElementById('formTitle').innerText = "Edit Data Sekolah"; //[cite: 3]
+      document.getElementById('btnSimpanSekolah').innerText = "Update Data"; //[cite: 3]
+      window.scrollTo({ top: 350, behavior: 'smooth' }); //[cite: 3]
     }
 
     async function hapusSekolah(id) {
-      if(!confirm("Hapus data sekolah ini?")) return;
-      const { error } = await supabaseClient.from('sekolah_visits').delete().eq('id', id);
-      if(error) alert("Gagal hapus: " + error.message);
+      if(!confirm("Hapus data sekolah ini?")) return; //[cite: 3]
+      const { error } = await supabaseClient.from('sekolah_visits').delete().eq('id', id); //[cite: 3]
+      if(error) alert("Gagal hapus: " + error.message); //[cite: 3]
       else loadSekolahData();
     }
 
     function resetFormSekolah() {
-      document.getElementById('editId').value = '';
-      document.getElementById('namaSekolah').value = '';
-      document.getElementById('tglKunjungan').value = '';
-      document.getElementById('potensiRevenue').value = '';
-      document.getElementById('latitude').value = '';
-      document.getElementById('longitude').value = '';
-      document.getElementById('kontakPerson').value = '';
-      document.getElementById('catatan').value = '';
-      document.getElementById('formTitle').innerText = "Tambah Data Sekolah";
-      document.getElementById('btnSimpanSekolah').innerText = "Simpan Data";
+      document.getElementById('editId').value = ''; //[cite: 3]
+      document.getElementById('namaSekolah').value = ''; //[cite: 3]
+      document.getElementById('tglKunjungan').value = ''; //[cite: 3]
+      document.getElementById('potensiRevenue').value = ''; //[cite: 3]
+      document.getElementById('latitude').value = ''; //[cite: 3]
+      document.getElementById('longitude').value = ''; //[cite: 3]
+      document.getElementById('kontakPerson').value = ''; //[cite: 3]
+      document.getElementById('catatan').value = ''; //[cite: 3]
+      document.getElementById('formTitle').innerText = "Tambah Data Sekolah"; //[cite: 3]
+      document.getElementById('btnSimpanSekolah').innerText = "Simpan Data"; //[cite: 3]
     }
 
     // ==========================================
@@ -501,56 +740,56 @@
       const { data, error } = await supabaseClient
         .from('catatan_pribadi')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }); //[cite: 3]
 
-      if (error) return console.log("Gagal memuat catatan:", error.message);
+      if (error) return console.log("Gagal memuat catatan:", error.message); //[cite: 3]
 
-      const container = document.getElementById('daftarCatatanContainer');
-      container.innerHTML = '';
+      const container = document.getElementById('daftarCatatanContainer'); //[cite: 3]
+      container.innerHTML = ''; //[cite: 3]
 
       if(data.length === 0) {
-        container.innerHTML = '<p style="color:#777;">Belum ada catatan pribadi.</p>';
+        container.innerHTML = '<p style="color:#666;">Belum ada catatan pribadi.</p>'; //[cite: 3]
         return;
       }
 
       data.forEach(note => {
-        const jsonNote = JSON.stringify(note).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+        const jsonNote = JSON.stringify(note).replace(/'/g, "&apos;").replace(/"/g, "&quot;"); //[cite: 3]
         container.innerHTML += `
-          <div style="background:#f8f9fa; padding:12px; border-radius:8px; margin-bottom:10px; border-left:4px solid #007bff;">
+          <div style="background:#e6eee9; padding:15px; border-radius:14px; margin-bottom:15px; box-shadow: inset 2px 2px 5px #c8d3cc, inset -2px -2px 5px #ffffff; border-left:4px solid #10b981;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h4 style="margin:0; color:#333;">${note.judul}</h4>
-              <div>
-                <button onclick='editCatatan(${jsonNote})' class="btn" style="padding:2px 6px; font-size:11px;">Edit</button>
-                <button onclick='hapusCatatan(${note.id})' class="btn btn-danger" style="padding:2px 6px; font-size:11px;">Hapus</button>
+              <h4 style="margin:0; color:#2e7d32;">${note.judul}</h4>
+              <div style="display:flex; gap:6px;">
+                <button onclick='editCatatan(${jsonNote})' class="btn" style="padding:4px 8px; font-size:11px;">Edit</button>
+                <button onclick='hapusCatatan(${note.id})' class="btn btn-danger" style="padding:4px 8px; font-size:11px;">Hapus</button>
               </div>
             </div>
-            <p style="margin:8px 0 0 0; font-size:13px; color:#555; white-space: pre-line;">${note.isi_catatan}</p>
+            <p style="margin:10px 0 0 0; font-size:13px; color:#4a5568; white-space: pre-line;">${note.isi_catatan}</p>
           </div>
-        `;
+        `; //[cite: 3]
       });
     }
 
     async function simpanCatatan() {
-      const editNoteId = document.getElementById('editNoteId').value;
+      const editNoteId = document.getElementById('editNoteId').value; //[cite: 3]
       const payload = {
-        id: editNoteId ? parseInt(editNoteId) : Date.now(),
-        judul: document.getElementById('judulCatatan').value,
-        isi_catatan: document.getElementById('isiCatatan').value
+        id: editNoteId ? parseInt(editNoteId) : Date.now(), //[cite: 3]
+        judul: document.getElementById('judulCatatan').value, //[cite: 3]
+        isi_catatan: document.getElementById('isiCatatan').value //[cite: 3]
       };
 
-      if (!payload.judul) return alert("Judul catatan wajib diisi!");
+      if (!payload.judul) return alert("Judul catatan wajib diisi!"); //[cite: 3]
 
       let error;
       if (editNoteId) {
-        const res = await supabaseClient.from('catatan_pribadi').update(payload).eq('id', editNoteId);
+        const res = await supabaseClient.from('catatan_pribadi').update(payload).eq('id', editNoteId); //[cite: 3]
         error = res.error;
       } else {
-        const res = await supabaseClient.from('catatan_pribadi').insert([payload]);
+        const res = await supabaseClient.from('catatan_pribadi').insert([payload]); //[cite: 3]
         error = res.error;
       }
 
       if (error) {
-        alert("Gagal menyimpan catatan: " + error.message);
+        alert("Gagal menyimpan catatan: " + error.message); //[cite: 3]
       } else {
         resetFormNote();
         loadCatatanPribadi();
@@ -558,35 +797,34 @@
     }
 
     function editCatatan(note) {
-      document.getElementById('editNoteId').value = note.id;
-      document.getElementById('judulCatatan').value = note.judul;
-      document.getElementById('isiCatatan').value = note.isi_catatan || '';
-      document.getElementById('noteFormTitle').innerText = "Edit Catatan Pribadi";
-      document.getElementById('btnSimpanNote').innerText = "Update Catatan";
+      document.getElementById('editNoteId').value = note.id; //[cite: 3]
+      document.getElementById('judulCatatan').value = note.judul; //[cite: 3]
+      document.getElementById('isiCatatan').value = note.isi_catatan || ''; //[cite: 3]
+      document.getElementById('noteFormTitle').innerText = "Edit Catatan Pribadi"; //[cite: 3]
+      document.getElementById('btnSimpanNote').innerText = "Update Catatan"; //[cite: 3]
     }
 
     async function hapusCatatan(id) {
-      if(!confirm("Hapus catatan ini?")) return;
-      const { error } = await supabaseClient.from('catatan_pribadi').delete().eq('id', id);
-      if(error) alert("Gagal hapus: " + error.message);
+      if(!confirm("Hapus catatan ini?")) return; //[cite: 3]
+      const { error } = await supabaseClient.from('catatan_pribadi').delete().eq('id', id); //[cite: 3]
+      if(error) alert("Gagal hapus: " + error.message); //[cite: 3]
       else loadCatatanPribadi();
     }
 
     function resetFormNote() {
-      document.getElementById('editNoteId').value = '';
-      document.getElementById('judulCatatan').value = '';
-      document.getElementById('isiCatatan').value = '';
-      document.getElementById('noteFormTitle').innerText = "Tambah Catatan Pribadi / Laporan";
-      document.getElementById('btnSimpanNote').innerText = "Simpan Catatan";
+      document.getElementById('editNoteId').value = ''; //[cite: 3]
+      document.getElementById('judulCatatan').value = ''; //[cite: 3]
+      document.getElementById('isiCatatan').value = ''; //[cite: 3]
+      document.getElementById('noteFormTitle').innerText = "Tambah Catatan Pribadi / Laporan"; //[cite: 3]
+      document.getElementById('btnSimpanNote').innerText = "Simpan Catatan"; //[cite: 3]
     }
 
-    // UTILITY TAB SWITCHING
     function switchTab(tabId, btn) {
-      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active')); //[cite: 3]
+      document.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active')); //[cite: 3]
       
-      document.getElementById(tabId).classList.add('active');
-      btn.classList.add('active');
+      document.getElementById(tabId).classList.add('active'); //[cite: 3]
+      btn.classList.add('active'); //[cite: 3]
     }
   </script>
 </body>
