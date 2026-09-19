@@ -16,9 +16,6 @@
     /* ==========================================
        NEUMORPHISM GREEN THEME STYLES
        Base Color: #e6eee9 (Soft Greenish-Gray)
-       Primary Accent: #2e7d32 / #10b981 (Emerald Green)
-       Shadow light: #ffffff
-       Shadow dark: #c8d3cc
        ========================================== */
     * { 
       box-sizing: border-box; 
@@ -56,7 +53,6 @@
       margin-bottom: 25px; 
       color: #2e7d32; 
       font-weight: 700;
-      letter-spacing: -0.5px;
     }
 
     /* MAIN APP CONTAINER */
@@ -84,6 +80,42 @@
       font-size: 18px; 
       color: #2e7d32; 
       font-weight: 700;
+    }
+
+    /* STATS / REVENUE CARD */
+    .stats-card {
+      background: #e6eee9;
+      padding: 20px;
+      border-radius: 18px;
+      margin-bottom: 20px;
+      box-shadow: 7px 7px 14px #c8d3cc, -7px -7px 14px #ffffff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      border-left: 6px solid #10b981;
+    }
+
+    .stats-info h4 {
+      margin: 0;
+      font-size: 13px;
+      color: #4a5568;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stats-info .amount {
+      font-size: 24px;
+      font-weight: 800;
+      color: #2e7d32;
+      margin-top: 4px;
+    }
+
+    .stats-info .subtext {
+      font-size: 12px;
+      color: #718096;
+      margin-top: 2px;
     }
 
     /* CARDS & PETA */
@@ -201,6 +233,11 @@
       background: linear-gradient(145deg, #059669, #047857);
     }
 
+    .btn-info {
+      background: linear-gradient(145deg, #0284c7, #0369a1);
+      color: #fff;
+    }
+
     /* TABLE STYLES */
     .table-responsive { 
       overflow-x: auto; 
@@ -234,22 +271,35 @@
       border-bottom: none;
     }
 
-    /* BADGES */
+    /* BADGES STATUS KUNJUNGAN */
     .badge { 
       display: inline-block; 
-      padding: 4px 10px; 
+      padding: 5px 10px; 
       border-radius: 8px; 
       font-size: 11px; 
       font-weight: 700; 
+      white-space: nowrap;
     }
 
-    .badge-rencana { 
+    .badge-belum { 
       background: #fef3c7; 
       color: #92400e; 
       box-shadow: 2px 2px 4px #d2c8a4;
     }
 
-    .badge-sudah { 
+    .badge-visit { 
+      background: #e0f2fe; 
+      color: #0369a1; 
+      box-shadow: 2px 2px 4px #b8d4e8;
+    }
+
+    .badge-survey { 
+      background: #f3e8ff; 
+      color: #6b21a8; 
+      box-shadow: 2px 2px 4px #d8c8e8;
+    }
+
+    .badge-closing { 
       background: #d1fae5; 
       color: #065f46; 
       box-shadow: 2px 2px 4px #accfbe;
@@ -258,37 +308,9 @@
     .distance-tag { 
       color: #059669; 
       font-weight: 700; 
+      white-space: nowrap;
     }
 
-    /* TABS NAVIGASI */
-    .tab-buttons { 
-      display: flex; 
-      gap: 15px; 
-      margin-bottom: 20px; 
-    }
-
-    .tab-btn { 
-      flex: 1; 
-      padding: 12px; 
-      background: #e6eee9; 
-      border: none; 
-      border-radius: 14px; 
-      cursor: pointer; 
-      font-weight: 700; 
-      color: #55605a;
-      box-shadow: 5px 5px 10px #c8d3cc, -5px -5px 10px #ffffff;
-      transition: all 0.2s ease;
-    }
-
-    .tab-btn.active { 
-      color: #2e7d32; 
-      box-shadow: inset 3px 3px 6px #c8d3cc, inset -3px -3px 6px #ffffff;
-    }
-
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    /* ACTION BUTTONS GROUP */
     .action-group {
       display: flex;
       gap: 10px;
@@ -296,18 +318,38 @@
       margin-top: 15px;
     }
 
+    /* MODAL FOR CATATAN */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-card {
+      background: #e6eee9;
+      padding: 25px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 9px 9px 18px #c8d3cc, -9px -9px 18px #ffffff;
+    }
+
     /* RESPONSIVE MEDIA QUERIES */
     @media (max-width: 600px) {
       body { padding: 0; }
       #app-content { padding: 10px; }
-      .navbar { padding: 12px; flex-direction: row; }
+      .navbar { padding: 12px; }
       .navbar h3 { font-size: 15px; }
       #map { height: 280px; }
       .card { padding: 15px; border-radius: 14px; }
       .action-group { flex-direction: column; }
       .action-group .btn { width: 100%; margin-left: 0 !important; }
-      .tab-buttons { gap: 8px; }
-      .tab-btn { font-size: 12px; padding: 10px 5px; }
+      .stats-card { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
@@ -340,148 +382,141 @@
       <button onclick="handleLogout()" class="btn-logout">Logout</button>
     </div>
 
+    <!-- KARTU TOTAL REVENUE BULAN INI -->
+    <div class="stats-card">
+      <div class="stats-info">
+        <h4 id="statTitleBulan">Total Revenue Bulan Ini</h4>
+        <div class="amount" id="totalRevenueBulanIni">Rp 0</div>
+        <div class="subtext" id="totalClosingCount">0 Sekolah Closing Done Bulan Ini</div>
+      </div>
+      <button onclick="loadSekolahData()" class="btn btn-secondary" style="font-size: 12px; padding: 8px 14px;">
+        🔄 Refresh Data
+      </button>
+    </div>
+
     <!-- PETA UTAMA -->
     <div id="map"></div>
 
-    <!-- TOMBOL TAB NAVIGASI -->
-    <div class="tab-buttons">
-      <button class="tab-btn active" onclick="switchTab('sekolah-tab', this)">📍 Sekolah Terdekat</button>
-      <button class="tab-btn" onclick="switchTab('catatan-tab', this)">📝 Catatan & Laporan</button>
-    </div>
-
-    <!-- TAB 1: MANAJEMEN SEKOLAH -->
-    <div id="sekolah-tab" class="tab-content active">
+    <!-- FORM INPUT / UPDATE SEKOLAH -->
+    <div class="card">
+      <h3 id="formTitle">Tambah Data Sekolah</h3>
+      <input type="hidden" id="editId">
       
-      <!-- FORM INPUT / EDIT SEKOLAH -->
-      <div class="card">
-        <h3 id="formTitle">Tambah Data Sekolah</h3>
-        <input type="hidden" id="editId">
-        
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Nama Sekolah</label>
-            <input type="text" id="namaSekolah" placeholder="Contoh: SMAN 1 Bandung" required>
-          </div>
-          <div class="form-group">
-            <label>Status Kunjungan</label>
-            <select id="statusKunjungan">
-              <option value="Rencana Kunjungan">Rencana Kunjungan</option>
-              <option value="Sudah Dikunjungi">Sudah Dikunjungi</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Tanggal Kunjungan</label>
-            <input type="date" id="tglKunjungan">
-          </div>
-          <div class="form-group">
-            <label>Potensi Revenue (Rp)</label>
-            <input type="number" id="potensiRevenue" placeholder="0">
-          </div>
-          <div class="form-group">
-            <label>Latitude</label>
-            <input type="text" id="latitude" placeholder="Klik di peta / GPS" required>
-          </div>
-          <div class="form-group">
-            <label>Longitude</label>
-            <input type="text" id="longitude" placeholder="Klik di peta / GPS" required>
-          </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nama Sekolah</label>
+          <input type="text" id="namaSekolah" placeholder="Contoh: SMAN 1 Bandung" required>
         </div>
-
-        <div class="form-group" style="margin-top: 12px;">
-          <label>Kontak Person (CP / HP)</label>
-          <input type="text" id="kontakPerson" placeholder="Misal: Pak Budi - Kepsek (0812xxx)">
+        <div class="form-group">
+          <label>Status Kunjungan</label>
+          <select id="statusKunjungan">
+            <option value="Belum Di-visit">Belum Di-visit</option>
+            <option value="Sudah Di-visit">Sudah Di-visit</option>
+            <option value="Sudah Survey">Sudah Survey</option>
+            <option value="Closing done">Closing done</option>
+          </select>
         </div>
-
-        <div class="form-group" style="margin-top: 12px;">
-          <label>Catatan Lapangan / Hasil Obrolan</label>
-          <textarea id="catatan" rows="2" placeholder="Catat detail penawaran atau janji temu..."></textarea>
+        <div class="form-group">
+          <label>Tanggal Kunjungan</label>
+          <input type="date" id="tglKunjungan">
         </div>
-
-        <div class="action-group">
-          <button onclick="simpanSekolah()" class="btn" id="btnSimpanSekolah">Simpan Data</button>
-          <button onclick="resetFormSekolah()" class="btn btn-secondary">Batal / Reset</button>
-          <button onclick="getGPSLocation()" class="btn btn-gps" style="margin-left: auto;">📍 Lokasi Saya Saat Ini</button>
+        <div class="form-group">
+          <label>Revenue (Rp)</label>
+          <input type="number" id="potensiRevenue" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Latitude</label>
+          <input type="text" id="latitude" placeholder="Klik di peta / GPS" required>
+        </div>
+        <div class="form-group">
+          <label>Longitude</label>
+          <input type="text" id="longitude" placeholder="Klik di peta / GPS" required>
         </div>
       </div>
 
-      <!-- TABEL DAFTAR SEKOLAH (SORTED BY NEAREST) -->
-      <div class="card">
-        <h3>Daftar Sekolah (Urut Jarak Terdekat)</h3>
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th>Jarak</th>
-                <th>Nama Sekolah</th>
-                <th>Status</th>
-                <th>Tgl Visit</th>
-                <th>Potensi Revenue</th>
-                <th>Kontak & Catatan</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="tabelSekolahBody">
-              <!-- Data Sekolah Di-render Otomatis -->
-            </tbody>
-          </table>
-        </div>
+      <div class="form-group" style="margin-top: 12px;">
+        <label>Kontak Person (CP / HP)</label>
+        <input type="text" id="kontakPerson" placeholder="Pak Budi - Kepsek (0812xxx)">
       </div>
 
+      <div class="form-group" style="margin-top: 12px;">
+        <label>Catatan Khusus Sekolah Ini</label>
+        <textarea id="catatan" rows="3" placeholder="Tulis hasil pertemuan, kesepakatan, atau janji follow-up..."></textarea>
+      </div>
+
+      <div class="action-group">
+        <button onclick="simpanSekolah()" class="btn" id="btnSimpanSekolah">Simpan Data</button>
+        <button onclick="resetFormSekolah()" class="btn btn-secondary" id="btnBatal" style="display:none;">Batal Edit</button>
+        <button onclick="getGPSLocation()" class="btn btn-gps" style="margin-left: auto;">📍 Lokasi Saya Saat Ini</button>
+      </div>
     </div>
 
-    <!-- TAB 2: CATATAN PRIBADI -->
-    <div id="catatan-tab" class="tab-content">
-      
-      <!-- FORM CATATAN PRIBADI -->
-      <div class="card">
-        <h3 id="noteFormTitle">Tambah Catatan Pribadi / Laporan</h3>
-        <input type="hidden" id="editNoteId">
-        
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label>Judul Catatan / Target</label>
-          <input type="text" id="judulCatatan" placeholder="Contoh: Evaluasi Target Minggu Ke-2">
-        </div>
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label>Isi Ringkasan / Laporan</label>
-          <textarea id="isiCatatan" rows="4" placeholder="Tulis strategi, catatan mandiri, atau evaluasi harian..."></textarea>
-        </div>
-
-        <div class="action-group">
-          <button onclick="simpanCatatan()" class="btn" id="btnSimpanNote">Simpan Catatan</button>
-          <button onclick="resetFormNote()" class="btn btn-secondary">Batal</button>
-        </div>
+    <!-- TABEL DAFTAR SEKOLAH -->
+    <div class="card">
+      <h3>Daftar Sekolah (Urut Jarak Terdekat)</h3>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Jarak</th>
+              <th>Nama Sekolah</th>
+              <th>Status</th>
+              <th>Tgl Visit</th>
+              <th>Revenue</th>
+              <th>Kontak</th>
+              <th>Catatan</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tabelSekolahBody">
+            <!-- Data Sekolah Di-render Otomatis -->
+          </tbody>
+        </table>
       </div>
-
-      <!-- DAFTAR CATATAN PRIBADI -->
-      <div class="card">
-        <h3>Ringkasan Catatan Mandiri</h3>
-        <div id="daftarCatatanContainer">
-          <!-- Render Catatan -->
-        </div>
-      </div>
-
     </div>
 
+  </div>
+
+  <!-- MODAL CATATAN SEKOLAH -->
+  <div id="modalCatatan" class="modal-overlay">
+    <div class="modal-card">
+      <h3 id="modalSchoolName" style="margin-top:0; color:#2e7d32;">Catatan Sekolah</h3>
+      <p style="font-size:12px; color:#666;">Isi atau perbarui catatan khusus untuk sekolah ini:</p>
+      <input type="hidden" id="modalSchoolId">
+      <div class="form-group" style="margin-bottom: 15px;">
+        <textarea id="modalCatatanText" rows="5" placeholder="Belum ada catatan..."></textarea>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button onclick="tutupModalCatatan()" class="btn btn-secondary">Tutup</button>
+        <button onclick="simpanModalCatatan()" class="btn">Simpan Catatan</button>
+      </div>
+    </div>
   </div>
 
   <script>
     // ==========================================
     // 1. CONFIG SUPABASE
     // ==========================================
-    const SUPABASE_URL = "https://oqvqbgpcgxkdsjsfwegz.supabase.co"; //[cite: 3]
-    const SUPABASE_KEY = "sb_publishable_CYObrBKZgPIZtLpr14VcYA_W3Nez0oi"; //[cite: 3]
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); //[cite: 3]
+    const SUPABASE_URL = "https://oqvqbgpcgxkdsjsfwegz.supabase.co"; 
+    const SUPABASE_KEY = "sb_publishable_CYObrBKZgPIZtLpr14VcYA_W3Nez0oi"; 
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); 
 
     let map;
     let markers = [];
     let userLocation = null; 
     let currentSchoolsData = [];
 
+    // Names Month ID
+    const namaBulan = [
+      "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+      "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ];
+
     // ==========================================
     // 2. AUTHENTICATION (LOGIN / LOGOUT)
     // ==========================================
     window.onload = async function() {
-      const { data: { session } } = await supabaseClient.auth.getSession(); //[cite: 3]
+      const { data: { session } } = await supabaseClient.auth.getSession(); 
       if (session) {
         showApp();
       } else {
@@ -491,10 +526,10 @@
 
     async function handleLogin(e) {
       e.preventDefault();
-      const email = document.getElementById('loginEmail').value; //[cite: 3]
-      const password = document.getElementById('loginPassword').value; //[cite: 3]
+      const email = document.getElementById('loginEmail').value; 
+      const password = document.getElementById('loginPassword').value; 
 
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password }); //[cite: 3]
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password }); 
 
       if (error) {
         alert("Login Gagal: " + error.message);
@@ -504,37 +539,36 @@
     }
 
     async function handleLogout() {
-      await supabaseClient.auth.signOut(); //[cite: 3]
+      await supabaseClient.auth.signOut(); 
       showLogin();
     }
 
     function showLogin() {
-      document.getElementById('login-section').style.display = 'flex'; //[cite: 3]
-      document.getElementById('app-content').style.display = 'none'; //[cite: 3]
+      document.getElementById('login-section').style.display = 'flex'; 
+      document.getElementById('app-content').style.display = 'none'; 
     }
 
     function showApp() {
-      document.getElementById('login-section').style.display = 'none'; //[cite: 3]
-      document.getElementById('app-content').style.display = 'block'; //[cite: 3]
+      document.getElementById('login-section').style.display = 'none'; 
+      document.getElementById('app-content').style.display = 'block'; 
       initMap();
       getUserGPSAndLoadData();
-      loadCatatanPribadi();
     }
 
     // ==========================================
-    // 3. PETA & GEOLOCATION SORTING
+    // 3. PETA & GEOLOCATION
     // ==========================================
     function initMap() {
       if(map) return;
-      map = L.map('map').setView([-6.9175, 107.6191], 12); //[cite: 3]
+      map = L.map('map').setView([-6.9175, 107.6191], 12); 
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap'
-      }).addTo(map); //[cite: 3]
+      }).addTo(map); 
 
       map.on('click', function(e) {
-        document.getElementById('latitude').value = e.latlng.lat.toFixed(6); //[cite: 3]
-        document.getElementById('longitude').value = e.latlng.lng.toFixed(6); //[cite: 3]
+        document.getElementById('latitude').value = e.latlng.lat.toFixed(6); 
+        document.getElementById('longitude').value = e.latlng.lng.toFixed(6); 
       });
     }
 
@@ -542,20 +576,19 @@
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            userLocation = [position.coords.latitude, position.coords.longitude]; //[cite: 3]
+            userLocation = [position.coords.latitude, position.coords.longitude]; 
             
             L.circle(userLocation, {
               color: '#059669',
               fillColor: '#10b981',
               fillOpacity: 0.3,
               radius: 120
-            }).addTo(map).bindPopup("<b>Posisi Kamu Saat Ini</b>"); //[cite: 3]
+            }).addTo(map).bindPopup("<b>Posisi Kamu Saat Ini</b>"); 
 
-            map.setView(userLocation, 13); //[cite: 3]
+            map.setView(userLocation, 13); 
             loadSekolahData();
           },
           (error) => {
-            console.log("GPS Akses Ditolak/Gagal."); //[cite: 3]
             loadSekolahData();
           }
         );
@@ -567,77 +600,113 @@
     function getGPSLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((pos) => {
-          document.getElementById('latitude').value = pos.coords.latitude.toFixed(6); //[cite: 3]
-          document.getElementById('longitude').value = pos.coords.longitude.toFixed(6); //[cite: 3]
-          alert("Lokasi GPS berhasil diambil!"); //[cite: 3]
+          document.getElementById('latitude').value = pos.coords.latitude.toFixed(6); 
+          document.getElementById('longitude').value = pos.coords.longitude.toFixed(6); 
+          alert("Lokasi GPS berhasil diambil!"); 
         });
       } else {
-        alert("Fitur GPS tidak didukung di browser ini."); //[cite: 3]
+        alert("Fitur GPS tidak didukung di browser ini."); 
       }
     }
 
     function calculateDistance(lat1, lon1, lat2, lon2) {
-      if (!lat1 || !lon1 || !lat2 || !lon2) return 999999; //[cite: 3]
-      const R = 6371; //[cite: 3]
-      const dLat = (lat2 - lat1) * Math.PI / 180; //[cite: 3]
-      const dLon = (lon2 - lon1) * Math.PI / 180; //[cite: 3]
+      if (!lat1 || !lon1 || !lat2 || !lon2) return 999999; 
+      const R = 6371; 
+      const dLat = (lat2 - lat1) * Math.PI / 180; 
+      const dLon = (lon2 - lon1) * Math.PI / 180; 
       const a = 
         Math.sin(dLat/2) * Math.sin(dLat/2) +
         Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-        Math.sin(dLon/2) * Math.sin(dLon/2); //[cite: 3]
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); //[cite: 3]
+        Math.sin(dLon/2) * Math.sin(dLon/2); 
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
       return R * c; 
     }
 
     // ==========================================
-    // 4. CRUD DATA SEKOLAH
+    // 4. LOAD & RENDER DATA SEKOLAH & REVENUE
     // ==========================================
     async function loadSekolahData() {
       const { data, error } = await supabaseClient
         .from('sekolah_visits')
-        .select('*'); //[cite: 3]
+        .select('*'); 
 
-      if (error) return alert("Gagal memuat sekolah: " + error.message); //[cite: 3]
+      if (error) return alert("Gagal memuat sekolah: " + error.message); 
 
       currentSchoolsData = data.map(item => {
-        let dist = 999999; //[cite: 3]
+        let dist = 999999; 
         if (userLocation) {
-          dist = calculateDistance(userLocation[0], userLocation[1], item.latitude, item.longitude); //[cite: 3]
+          dist = calculateDistance(userLocation[0], userLocation[1], item.latitude, item.longitude); 
         }
         return { ...item, distance: dist };
       });
 
-      currentSchoolsData.sort((a, b) => a.distance - b.distance); //[cite: 3]
+      currentSchoolsData.sort((a, b) => a.distance - b.distance); 
       renderSekolahUI();
+      hitungRevenueBulanIni();
+    }
+
+    function hitungRevenueBulanIni() {
+      const now = new Date();
+      const currentMonth = now.getMonth(); // 0 - 11
+      const currentYear = now.getFullYear();
+
+      document.getElementById('statTitleBulan').innerText = `Total Revenue (${namaBulan[currentMonth]} ${currentYear})`;
+
+      let totalRevenue = 0;
+      let closingCount = 0;
+
+      currentSchoolsData.forEach(item => {
+        // Cek jika status closing done dan ada tanggal kunjungan
+        if (item.status_kunjungan === 'Closing done' && item.tgl_kunjungan) {
+          const tglVisit = new Date(item.tgl_kunjungan);
+          
+          // Pengecekan persis Bulan dan Tahun berjalan
+          if (tglVisit.getMonth() === currentMonth && tglVisit.getFullYear() === currentYear) {
+            totalRevenue += Number(item.potensi_revenue || 0);
+            closingCount++;
+          }
+        }
+      });
+
+      document.getElementById('totalRevenueBulanIni').innerText = `Rp ${totalRevenue.toLocaleString('id-ID')}`;
+      document.getElementById('totalClosingCount').innerText = `${closingCount} Sekolah Closing Done Bulan Ini`;
     }
 
     function renderSekolahUI() {
-      markers.forEach(m => map.removeLayer(m)); //[cite: 3]
-      markers = []; //[cite: 3]
+      markers.forEach(m => map.removeLayer(m)); 
+      markers = []; 
 
-      const tbody = document.getElementById('tabelSekolahBody'); //[cite: 3]
-      tbody.innerHTML = ''; //[cite: 3]
+      const tbody = document.getElementById('tabelSekolahBody'); 
+      tbody.innerHTML = ''; 
 
       currentSchoolsData.forEach(item => {
         if (item.latitude && item.longitude) {
-          const marker = L.marker([item.latitude, item.longitude]).addTo(map); //[cite: 3]
+          const marker = L.marker([item.latitude, item.longitude]).addTo(map); 
           marker.bindPopup(`
             <b style="color:#2e7d32;">${item.nama_sekolah}</b><br>
             Status: ${item.status_kunjungan}<br>
             Revenue: Rp ${Number(item.potensi_revenue || 0).toLocaleString('id-ID')}
-          `); //[cite: 3]
-          markers.push(marker); //[cite: 3]
+          `); 
+          markers.push(marker); 
         }
 
         const distanceText = item.distance !== 999999 
           ? `${item.distance.toFixed(1)} km` 
-          : '-'; //[cite: 3]
+          : '-'; 
 
-        const statusBadge = item.status_kunjungan === 'Sudah Dikunjungi'
-          ? `<span class="badge badge-sudah">Sudah Visit</span>`
-          : `<span class="badge badge-rencana">Rencana</span>`; //[cite: 3]
+        // Badges Status Baru
+        let statusBadge = '';
+        if (item.status_kunjungan === 'Closing done') {
+          statusBadge = `<span class="badge badge-closing">Closing Done</span>`;
+        } else if (item.status_kunjungan === 'Sudah Survey') {
+          statusBadge = `<span class="badge badge-survey">Sudah Survey</span>`;
+        } else if (item.status_kunjungan === 'Sudah Di-visit') {
+          statusBadge = `<span class="badge badge-visit">Sudah Di-visit</span>`;
+        } else {
+          statusBadge = `<span class="badge badge-belum">Belum Di-visit</span>`;
+        }
 
-        const jsonRow = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;"); //[cite: 3]
+        const jsonRow = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;"); 
 
         tbody.innerHTML += `
           <tr>
@@ -645,186 +714,135 @@
             <td><b>${item.nama_sekolah}</b></td>
             <td>${statusBadge}</td>
             <td>${item.tgl_kunjungan || '-'}</td>
-            <td>Rp ${Number(item.potensi_revenue || 0).toLocaleString('id-ID')}</td>
+            <td><b>Rp ${Number(item.potensi_revenue || 0).toLocaleString('id-ID')}</b></td>
+            <td><small>${item.kontak_person || '-'}</small></td>
             <td>
-              <small><b>CP:</b> ${item.kontak_person || '-'}</small><br>
-              <small style="color:#666;">${item.catatan || '-'}</small>
+              <button onclick='bukaModalCatatan(${jsonRow})' class="btn btn-info" style="padding:4px 8px; font-size:11px;">
+                📝 Catatan
+              </button>
             </td>
             <td>
               <div style="display:flex; gap:6px;">
-                <button onclick='editSekolah(${jsonRow})' class="btn" style="padding:5px 10px; font-size:11px;">Edit</button>
+                <button onclick='editSekolah(${jsonRow})' class="btn" style="padding:5px 10px; font-size:11px;">Update</button>
                 <button onclick='hapusSekolah(${item.id})' class="btn btn-danger" style="padding:5px 10px; font-size:11px;">Hapus</button>
               </div>
             </td>
           </tr>
-        `; //[cite: 3]
+        `; 
       });
     }
 
+    // ==========================================
+    // 5. SIMPAN & UPDATE DATA SEKOLAH
+    // ==========================================
     async function simpanSekolah() {
-      const editId = document.getElementById('editId').value; //[cite: 3]
+      const editId = document.getElementById('editId').value; 
       const payload = {
-        id: editId ? parseInt(editId) : Date.now(), //[cite: 3]
-        nama_sekolah: document.getElementById('namaSekolah').value, //[cite: 3]
-        status_kunjungan: document.getElementById('statusKunjungan').value, //[cite: 3]
-        tgl_kunjungan: document.getElementById('tglKunjungan').value || null, //[cite: 3]
-        potensi_revenue: parseFloat(document.getElementById('potensiRevenue').value) || 0, //[cite: 3]
-        latitude: parseFloat(document.getElementById('latitude').value) || 0, //[cite: 3]
-        longitude: parseFloat(document.getElementById('longitude').value) || 0, //[cite: 3]
-        kontak_person: document.getElementById('kontakPerson').value, //[cite: 3]
-        catatan: document.getElementById('catatan').value //[cite: 3]
+        id: editId ? parseInt(editId) : Date.now(), 
+        nama_sekolah: document.getElementById('namaSekolah').value, 
+        status_kunjungan: document.getElementById('statusKunjungan').value, 
+        tgl_kunjungan: document.getElementById('tglKunjungan').value || null, 
+        potensi_revenue: parseFloat(document.getElementById('potensiRevenue').value) || 0, 
+        latitude: parseFloat(document.getElementById('latitude').value) || 0, 
+        longitude: parseFloat(document.getElementById('longitude').value) || 0, 
+        kontak_person: document.getElementById('kontakPerson').value, 
+        catatan: document.getElementById('catatan').value 
       };
 
       if (!payload.nama_sekolah || !payload.latitude || !payload.longitude) {
-        return alert("Nama sekolah, Latitude, dan Longitude wajib diisi!"); //[cite: 3]
+        return alert("Nama sekolah, Latitude, dan Longitude wajib diisi!"); 
       }
 
       let error;
       if (editId) {
-        const res = await supabaseClient.from('sekolah_visits').update(payload).eq('id', editId); //[cite: 3]
+        const res = await supabaseClient.from('sekolah_visits').update(payload).eq('id', editId); 
         error = res.error;
       } else {
-        const res = await supabaseClient.from('sekolah_visits').insert([payload]); //[cite: 3]
+        const res = await supabaseClient.from('sekolah_visits').insert([payload]); 
         error = res.error;
       }
 
       if (error) {
-        alert("Gagal menyimpan: " + error.message); //[cite: 3]
+        alert("Gagal menyimpan data: " + error.message); 
       } else {
-        alert("Data sekolah berhasil disimpan!"); //[cite: 3]
+        alert(editId ? "Data sekolah berhasil di-update!" : "Data sekolah berhasil ditambahkan!"); 
         resetFormSekolah();
         loadSekolahData();
       }
     }
 
     function editSekolah(item) {
-      document.getElementById('editId').value = item.id; //[cite: 3]
-      document.getElementById('namaSekolah').value = item.nama_sekolah; //[cite: 3]
-      document.getElementById('statusKunjungan').value = item.status_kunjungan; //[cite: 3]
-      document.getElementById('tglKunjungan').value = item.tgl_kunjungan || ''; //[cite: 3]
-      document.getElementById('potensiRevenue').value = item.potensi_revenue || 0; //[cite: 3]
-      document.getElementById('latitude').value = item.latitude; //[cite: 3]
-      document.getElementById('longitude').value = item.longitude; //[cite: 3]
-      document.getElementById('kontakPerson').value = item.kontak_person || ''; //[cite: 3]
-      document.getElementById('catatan').value = item.catatan || ''; //[cite: 3]
+      document.getElementById('editId').value = item.id; 
+      document.getElementById('namaSekolah').value = item.nama_sekolah; 
+      document.getElementById('statusKunjungan').value = item.status_kunjungan || 'Belum Di-visit'; 
+      document.getElementById('tglKunjungan').value = item.tgl_kunjungan || ''; 
+      document.getElementById('potensiRevenue').value = item.potensi_revenue || 0; 
+      document.getElementById('latitude').value = item.latitude; 
+      document.getElementById('longitude').value = item.longitude; 
+      document.getElementById('kontakPerson').value = item.kontak_person || ''; 
+      document.getElementById('catatan').value = item.catatan || ''; 
 
-      document.getElementById('formTitle').innerText = "Edit Data Sekolah"; //[cite: 3]
-      document.getElementById('btnSimpanSekolah').innerText = "Update Data"; //[cite: 3]
-      window.scrollTo({ top: 350, behavior: 'smooth' }); //[cite: 3]
+      document.getElementById('formTitle').innerText = "Update Data Sekolah"; 
+      document.getElementById('btnSimpanSekolah').innerText = "Update Data"; 
+      document.getElementById('btnBatal').style.display = 'inline-flex';
+      
+      // Scroll smooth ke form
+      document.getElementById('formTitle').scrollIntoView({ behavior: 'smooth' });
     }
 
     async function hapusSekolah(id) {
-      if(!confirm("Hapus data sekolah ini?")) return; //[cite: 3]
-      const { error } = await supabaseClient.from('sekolah_visits').delete().eq('id', id); //[cite: 3]
-      if(error) alert("Gagal hapus: " + error.message); //[cite: 3]
+      if(!confirm("Apakah kamu yakin ingin menghapus data sekolah ini?")) return; 
+      const { error } = await supabaseClient.from('sekolah_visits').delete().eq('id', id); 
+      if(error) alert("Gagal hapus: " + error.message); 
       else loadSekolahData();
     }
 
     function resetFormSekolah() {
-      document.getElementById('editId').value = ''; //[cite: 3]
-      document.getElementById('namaSekolah').value = ''; //[cite: 3]
-      document.getElementById('tglKunjungan').value = ''; //[cite: 3]
-      document.getElementById('potensiRevenue').value = ''; //[cite: 3]
-      document.getElementById('latitude').value = ''; //[cite: 3]
-      document.getElementById('longitude').value = ''; //[cite: 3]
-      document.getElementById('kontakPerson').value = ''; //[cite: 3]
-      document.getElementById('catatan').value = ''; //[cite: 3]
-      document.getElementById('formTitle').innerText = "Tambah Data Sekolah"; //[cite: 3]
-      document.getElementById('btnSimpanSekolah').innerText = "Simpan Data"; //[cite: 3]
+      document.getElementById('editId').value = ''; 
+      document.getElementById('namaSekolah').value = ''; 
+      document.getElementById('tglKunjungan').value = ''; 
+      document.getElementById('potensiRevenue').value = ''; 
+      document.getElementById('latitude').value = ''; 
+      document.getElementById('longitude').value = ''; 
+      document.getElementById('kontakPerson').value = ''; 
+      document.getElementById('catatan').value = ''; 
+      document.getElementById('statusKunjungan').value = 'Belum Di-visit';
+
+      document.getElementById('formTitle').innerText = "Tambah Data Sekolah"; 
+      document.getElementById('btnSimpanSekolah').innerText = "Simpan Data"; 
+      document.getElementById('btnBatal').style.display = 'none';
     }
 
     // ==========================================
-    // 5. CRUD CATATAN PRIBADI
+    // 6. MODAL CATATAN KHUSUS SEKOLAH
     // ==========================================
-    async function loadCatatanPribadi() {
-      const { data, error } = await supabaseClient
-        .from('catatan_pribadi')
-        .select('*')
-        .order('created_at', { ascending: false }); //[cite: 3]
-
-      if (error) return console.log("Gagal memuat catatan:", error.message); //[cite: 3]
-
-      const container = document.getElementById('daftarCatatanContainer'); //[cite: 3]
-      container.innerHTML = ''; //[cite: 3]
-
-      if(data.length === 0) {
-        container.innerHTML = '<p style="color:#666;">Belum ada catatan pribadi.</p>'; //[cite: 3]
-        return;
-      }
-
-      data.forEach(note => {
-        const jsonNote = JSON.stringify(note).replace(/'/g, "&apos;").replace(/"/g, "&quot;"); //[cite: 3]
-        container.innerHTML += `
-          <div style="background:#e6eee9; padding:15px; border-radius:14px; margin-bottom:15px; box-shadow: inset 2px 2px 5px #c8d3cc, inset -2px -2px 5px #ffffff; border-left:4px solid #10b981;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h4 style="margin:0; color:#2e7d32;">${note.judul}</h4>
-              <div style="display:flex; gap:6px;">
-                <button onclick='editCatatan(${jsonNote})' class="btn" style="padding:4px 8px; font-size:11px;">Edit</button>
-                <button onclick='hapusCatatan(${note.id})' class="btn btn-danger" style="padding:4px 8px; font-size:11px;">Hapus</button>
-              </div>
-            </div>
-            <p style="margin:10px 0 0 0; font-size:13px; color:#4a5568; white-space: pre-line;">${note.isi_catatan}</p>
-          </div>
-        `; //[cite: 3]
-      });
+    function bukaModalCatatan(item) {
+      document.getElementById('modalSchoolId').value = item.id;
+      document.getElementById('modalSchoolName').innerText = `Catatan: ${item.nama_sekolah}`;
+      document.getElementById('modalCatatanText').value = item.catatan || '';
+      document.getElementById('modalCatatan').style.display = 'flex';
     }
 
-    async function simpanCatatan() {
-      const editNoteId = document.getElementById('editNoteId').value; //[cite: 3]
-      const payload = {
-        id: editNoteId ? parseInt(editNoteId) : Date.now(), //[cite: 3]
-        judul: document.getElementById('judulCatatan').value, //[cite: 3]
-        isi_catatan: document.getElementById('isiCatatan').value //[cite: 3]
-      };
+    function tutupModalCatatan() {
+      document.getElementById('modalCatatan').style.display = 'none';
+    }
 
-      if (!payload.judul) return alert("Judul catatan wajib diisi!"); //[cite: 3]
+    async function simpanModalCatatan() {
+      const id = document.getElementById('modalSchoolId').value;
+      const newCatatan = document.getElementById('modalCatatanText').value;
 
-      let error;
-      if (editNoteId) {
-        const res = await supabaseClient.from('catatan_pribadi').update(payload).eq('id', editNoteId); //[cite: 3]
-        error = res.error;
-      } else {
-        const res = await supabaseClient.from('catatan_pribadi').insert([payload]); //[cite: 3]
-        error = res.error;
-      }
+      const { error } = await supabaseClient
+        .from('sekolah_visits')
+        .update({ catatan: newCatatan })
+        .eq('id', id);
 
       if (error) {
-        alert("Gagal menyimpan catatan: " + error.message); //[cite: 3]
+        alert("Gagal memperbarui catatan: " + error.message);
       } else {
-        resetFormNote();
-        loadCatatanPribadi();
+        alert("Catatan sekolah berhasil diperbarui!");
+        tutupModalCatatan();
+        loadSekolahData();
       }
-    }
-
-    function editCatatan(note) {
-      document.getElementById('editNoteId').value = note.id; //[cite: 3]
-      document.getElementById('judulCatatan').value = note.judul; //[cite: 3]
-      document.getElementById('isiCatatan').value = note.isi_catatan || ''; //[cite: 3]
-      document.getElementById('noteFormTitle').innerText = "Edit Catatan Pribadi"; //[cite: 3]
-      document.getElementById('btnSimpanNote').innerText = "Update Catatan"; //[cite: 3]
-    }
-
-    async function hapusCatatan(id) {
-      if(!confirm("Hapus catatan ini?")) return; //[cite: 3]
-      const { error } = await supabaseClient.from('catatan_pribadi').delete().eq('id', id); //[cite: 3]
-      if(error) alert("Gagal hapus: " + error.message); //[cite: 3]
-      else loadCatatanPribadi();
-    }
-
-    function resetFormNote() {
-      document.getElementById('editNoteId').value = ''; //[cite: 3]
-      document.getElementById('judulCatatan').value = ''; //[cite: 3]
-      document.getElementById('isiCatatan').value = ''; //[cite: 3]
-      document.getElementById('noteFormTitle').innerText = "Tambah Catatan Pribadi / Laporan"; //[cite: 3]
-      document.getElementById('btnSimpanNote').innerText = "Simpan Catatan"; //[cite: 3]
-    }
-
-    function switchTab(tabId, btn) {
-      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active')); //[cite: 3]
-      document.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active')); //[cite: 3]
-      
-      document.getElementById(tabId).classList.add('active'); //[cite: 3]
-      btn.classList.add('active'); //[cite: 3]
     }
   </script>
 </body>
