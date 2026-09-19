@@ -8,6 +8,10 @@
   <!-- Leaflet CSS & JS (Peta) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Leaflet Geosearch CSS & JS (Fitur Cari Alamat Otomatis) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.11.0/dist/geosearch.css" />
+  <script src="https://unpkg.com/leaflet-geosearch@3.11.0/dist/geosearch.umd.js"></script>
   
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -137,7 +141,7 @@
     }
 
     #map { 
-      height: 350px; 
+      height: 380px; 
       width: 100%; 
       border-radius: 18px; 
       margin-bottom: 25px; 
@@ -167,7 +171,6 @@
       letter-spacing: 0.5px;
     }
 
-    /* Inset Soft Input untuk Neumorphism */
     input, select, textarea { 
       width: 100%; 
       padding: 12px; 
@@ -183,6 +186,11 @@
 
     input:focus, select:focus, textarea:focus {
       box-shadow: inset 1px 1px 2px #c8d3cc, inset -1px -1px 2px #ffffff, 0 0 0 2px #10b981;
+    }
+
+    .leaflet-control-geosearch form input {
+      background: #ffffff !important;
+      box-shadow: none !important;
     }
 
     /* BUTTONS */
@@ -412,7 +420,7 @@
     <div class="card">
       <h3 id="formTitle">Tambah Data Sekolah</h3>
       <input type="hidden" id="editId">
-      
+
       <div class="form-grid">
         <div class="form-group">
           <label>Nama Sekolah</label>
@@ -437,11 +445,11 @@
         </div>
         <div class="form-group">
           <label>Latitude</label>
-          <input type="text" id="latitude" placeholder="Klik di peta / GPS" required>
+          <input type="text" id="latitude" placeholder="Pilih di peta / klik GPS" required>
         </div>
         <div class="form-group">
           <label>Longitude</label>
-          <input type="text" id="longitude" placeholder="Klik di peta / GPS" required>
+          <input type="text" id="longitude" placeholder="Pilih di peta / klik GPS" required>
         </div>
       </div>
 
@@ -576,6 +584,31 @@
         attribution: '&copy; OpenStreetMap'
       }).addTo(map); 
 
+      // INTEGRASI GEOSEARCH AUTOCOMPLETE
+      const searchProvider = new GeoSearch.OpenStreetMapProvider();
+      const searchControl = new GeoSearch.GeoSearchControl({
+        provider: searchProvider,
+        style: 'bar',
+        showMarker: true,
+        showPopup: false,
+        autoClose: true,
+        retainZoomLevel: false,
+        animateZoom: true,
+        keepResult: true,
+        searchLabel: 'Cari nama sekolah / alamat...'
+      });
+      map.addControl(searchControl);
+
+      map.on('geosearch/showlocation', function(result) {
+        document.getElementById('latitude').value = result.location.y.toFixed(6);
+        document.getElementById('longitude').value = result.location.x.toFixed(6);
+        
+        const inputNama = document.getElementById('namaSekolah');
+        if (!inputNama.value) {
+          inputNama.value = result.location.label.split(',')[0];
+        }
+      });
+
       map.on('click', function(e) {
         document.getElementById('latitude').value = e.latlng.lat.toFixed(6); 
         document.getElementById('longitude').value = e.latlng.lng.toFixed(6); 
@@ -612,7 +645,7 @@
         navigator.geolocation.getCurrentPosition((pos) => {
           document.getElementById('latitude').value = pos.coords.latitude.toFixed(6); 
           document.getElementById('longitude').value = pos.coords.longitude.toFixed(6); 
-          alert("Lokasi GPS berhasil diambil!"); 
+          alert("Lokasi GPS berhasil tersimpan untuk sekolah ini!"); 
         });
       } else {
         alert("Fitur GPS tidak didukung di browser ini."); 
@@ -632,7 +665,6 @@
       return R * c; 
     }
 
-    // AUTO-LOAD & FOCUS PETA SAAT NAMA SEKOLAH DIKLIK
     function fokusKePeta(lat, lng) {
       if (!lat || !lng) return alert("Koordinat lokasi tidak valid!");
 
@@ -779,8 +811,12 @@
         catatan: document.getElementById('catatan').value 
       };
 
-      if (!payload.nama_sekolah || !payload.latitude || !payload.longitude) {
-        return alert("Nama sekolah, Latitude, dan Longitude wajib diisi!"); 
+      if (!payload.nama_sekolah) {
+        return alert("Nama sekolah wajib diisi!"); 
+      }
+
+      if (!payload.latitude || !payload.longitude) {
+        return alert("Silakan isi Latitude & Longitude, pilih di peta, atau klik 'Lokasi Saya Saat Ini'!"); 
       }
 
       let error;
