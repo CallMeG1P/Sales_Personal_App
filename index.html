@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- Leaflet Geosearch CSS & JS (Fitur Cari Alamat Otomatis) -->
+  <!-- Leaflet Geosearch CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.11.0/dist/geosearch.css" />
   <script src="https://unpkg.com/leaflet-geosearch@3.11.0/dist/geosearch.umd.js"></script>
   
@@ -19,7 +19,7 @@
   <style>
     /* ==========================================
        NEUMORPHISM GREEN THEME STYLES
-       Base Color: #e6eee9 (Soft Greenish-Gray)
+       Base Color: #e6eee9
        ========================================== */
     * { 
       box-sizing: border-box; 
@@ -86,7 +86,7 @@
       font-weight: 700;
     }
 
-    /* STATS / REVENUE CARD */
+    /* STATS CARD */
     .stats-card {
       background: #e6eee9;
       padding: 20px;
@@ -207,6 +207,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      text-decoration: none;
     }
 
     .btn:active {
@@ -216,10 +217,6 @@
     .btn-secondary { 
       background: linear-gradient(145deg, #78828a, #656d74); 
       color: #fff;
-    }
-
-    .btn-secondary:active {
-      box-shadow: inset 3px 3px 6px #50575d, inset -3px -3px 6px #909ca6;
     }
 
     .btn-danger, .btn-logout { 
@@ -233,10 +230,6 @@
       box-shadow: 4px 4px 8px #c8d3cc, -4px -4px 8px #ffffff;
     }
 
-    .btn-danger:active, .btn-logout:active {
-      box-shadow: inset 3px 3px 6px #9a1f1f, inset -3px -3px 6px #f64343;
-    }
-
     .btn-gps {
       background: linear-gradient(145deg, #059669, #047857);
     }
@@ -244,6 +237,19 @@
     .btn-info {
       background: linear-gradient(145deg, #0284c7, #0369a1);
       color: #fff;
+    }
+
+    .btn-wa {
+      background: linear-gradient(145deg, #10b981, #059669);
+      color: white;
+      padding: 4px 8px;
+      font-size: 11px;
+      border-radius: 6px;
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+      text-decoration: none;
+      box-shadow: 2px 2px 4px #c8d3cc;
     }
 
     /* TABLE STYLES */
@@ -275,10 +281,6 @@
       border-bottom: 1px solid #dce5df;
     }
 
-    tr:last-child td {
-      border-bottom: none;
-    }
-
     /* BADGES STATUS KUNJUNGAN */
     .badge { 
       display: inline-block; 
@@ -289,46 +291,13 @@
       white-space: nowrap;
     }
 
-    .badge-belum { 
-      background: #fef3c7; 
-      color: #92400e; 
-      box-shadow: 2px 2px 4px #d2c8a4;
-    }
+    .badge-belum { background: #fef3c7; color: #92400e; }
+    .badge-visit { background: #e0f2fe; color: #0369a1; }
+    .badge-survey { background: #f3e8ff; color: #6b21a8; }
+    .badge-closing { background: #d1fae5; color: #065f46; }
 
-    .badge-visit { 
-      background: #e0f2fe; 
-      color: #0369a1; 
-      box-shadow: 2px 2px 4px #b8d4e8;
-    }
-
-    .badge-survey { 
-      background: #f3e8ff; 
-      color: #6b21a8; 
-      box-shadow: 2px 2px 4px #d8c8e8;
-    }
-
-    .badge-closing { 
-      background: #d1fae5; 
-      color: #065f46; 
-      box-shadow: 2px 2px 4px #accfbe;
-    }
-
-    .distance-tag { 
-      color: #059669; 
-      font-weight: 700; 
-      white-space: nowrap;
-    }
-
-    .school-link {
-      color: #2e7d32;
-      font-weight: 700;
-      text-decoration: underline;
-      cursor: pointer;
-    }
-
-    .school-link:hover {
-      color: #10b981;
-    }
+    .distance-tag { color: #059669; font-weight: 700; white-space: nowrap; }
+    .school-link { color: #2e7d32; font-weight: 700; text-decoration: underline; cursor: pointer; }
 
     .action-group {
       display: flex;
@@ -337,7 +306,7 @@
       margin-top: 15px;
     }
 
-    /* MODAL FOR CATATAN */
+    /* MODAL */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -358,17 +327,12 @@
       box-shadow: 9px 9px 18px #c8d3cc, -9px -9px 18px #ffffff;
     }
 
-    /* RESPONSIVE MEDIA QUERIES */
     @media (max-width: 600px) {
       body { padding: 0; }
       #app-content { padding: 10px; }
-      .navbar { padding: 12px; }
-      .navbar h3 { font-size: 15px; }
       #map { height: 280px; }
-      .card { padding: 15px; border-radius: 14px; }
       .action-group { flex-direction: column; }
       .action-group .btn { width: 100%; margin-left: 0 !important; }
-      .stats-card { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
@@ -401,7 +365,7 @@
       <button onclick="handleLogout()" class="btn-logout">Logout</button>
     </div>
 
-    <!-- KARTU TOTAL REVENUE BULAN INI -->
+    <!-- KARTU TOTAL REVENUE -->
     <div class="stats-card">
       <div class="stats-info">
         <h4 id="statTitleBulan">Total Revenue Bulan Ini</h4>
@@ -451,14 +415,19 @@
           <label>Longitude</label>
           <input type="text" id="longitude" placeholder="Pilih di peta / klik GPS" required>
         </div>
+        
+        <!-- SEKSI KONTAK PERSON DIPISAH -->
+        <div class="form-group">
+          <label>Nama Kontak</label>
+          <input type="text" id="namaKontak" placeholder="Pak Budi - Kepsek">
+        </div>
+        <div class="form-group">
+          <label>No. HP / WhatsApp</label>
+          <input type="text" id="noHp" placeholder="08123456789">
+        </div>
       </div>
 
-      <div class="form-group" style="margin-top: 12px;">
-        <label>Kontak Person (CP / HP)</label>
-        <input type="text" id="kontakPerson" placeholder="Pak Budi - Kepsek (0812xxx)">
-      </div>
-
-      <div class="form-group" style="margin-top: 12px;">
+      <div class="form-group" style="margin-top: 15px;">
         <label>Catatan Khusus Sekolah Ini</label>
         <textarea id="catatan" rows="3" placeholder="Tulis hasil pertemuan, kesepakatan, atau janji follow-up..."></textarea>
       </div>
@@ -482,7 +451,8 @@
               <th>Status</th>
               <th>Tgl Visit</th>
               <th>Revenue</th>
-              <th>Kontak</th>
+              <th>Nama Kontak</th>
+              <th>No. HP / WA</th>
               <th>Catatan</th>
               <th>Aksi</th>
             </tr>
@@ -514,7 +484,7 @@
 
   <script>
     // ==========================================
-    // 1. CONFIG SUPABASE
+    // CONFIG SUPABASE
     // ==========================================
     const SUPABASE_URL = "https://oqvqbgpcgxkdsjsfwegz.supabase.co"; 
     const SUPABASE_KEY = "sb_publishable_CYObrBKZgPIZtLpr14VcYA_W3Nez0oi"; 
@@ -531,7 +501,7 @@
     ];
 
     // ==========================================
-    // 2. AUTHENTICATION (LOGIN / LOGOUT)
+    // AUTHENTICATION
     // ==========================================
     window.onload = async function() {
       const { data: { session } } = await supabaseClient.auth.getSession(); 
@@ -574,7 +544,7 @@
     }
 
     // ==========================================
-    // 3. PETA & GEOLOCATION
+    // MAP & GEOLOCATION
     // ==========================================
     function initMap() {
       if(map) return;
@@ -584,7 +554,6 @@
         attribution: '&copy; OpenStreetMap'
       }).addTo(map); 
 
-      // INTEGRASI GEOSEARCH AUTOCOMPLETE
       const searchProvider = new GeoSearch.OpenStreetMapProvider();
       const searchControl = new GeoSearch.GeoSearchControl({
         provider: searchProvider,
@@ -631,9 +600,7 @@
             map.setView(userLocation, 13); 
             loadSekolahData();
           },
-          (error) => {
-            loadSekolahData();
-          }
+          () => loadSekolahData()
         );
       } else {
         loadSekolahData();
@@ -645,7 +612,7 @@
         navigator.geolocation.getCurrentPosition((pos) => {
           document.getElementById('latitude').value = pos.coords.latitude.toFixed(6); 
           document.getElementById('longitude').value = pos.coords.longitude.toFixed(6); 
-          alert("Lokasi GPS berhasil tersimpan untuk sekolah ini!"); 
+          alert("Lokasi GPS berhasil tersimpan!"); 
         });
       } else {
         alert("Fitur GPS tidak didukung di browser ini."); 
@@ -668,10 +635,7 @@
     function fokusKePeta(lat, lng) {
       if (!lat || !lng) return alert("Koordinat lokasi tidak valid!");
 
-      map.flyTo([lat, lng], 16, {
-        animate: true,
-        duration: 1.5
-      });
+      map.flyTo([lat, lng], 16, { animate: true, duration: 1.5 });
 
       markers.forEach(marker => {
         const pos = marker.getLatLng();
@@ -684,7 +648,7 @@
     }
 
     // ==========================================
-    // 4. LOAD & RENDER DATA SEKOLAH & REVENUE
+    // LOAD & RENDER DATA
     // ==========================================
     async function loadSekolahData() {
       const { data, error } = await supabaseClient
@@ -719,7 +683,6 @@
       currentSchoolsData.forEach(item => {
         if (item.status_kunjungan === 'Closing done' && item.tgl_kunjungan) {
           const tglVisit = new Date(item.tgl_kunjungan);
-          
           if (tglVisit.getMonth() === currentMonth && tglVisit.getFullYear() === currentYear) {
             totalRevenue += Number(item.potensi_revenue || 0);
             closingCount++;
@@ -764,6 +727,16 @@
           statusBadge = `<span class="badge badge-belum">Belum Di-visit</span>`;
         }
 
+        // Format link WhatsApp jika ada nomor HP
+        let waButton = '-';
+        if (item.no_hp) {
+          let cleanPhone = item.no_hp.replace(/[^0-9]/g, '');
+          if (cleanPhone.startsWith('0')) {
+            cleanPhone = '62' + cleanPhone.slice(1);
+          }
+          waButton = `<a href="https://wa.me/${cleanPhone}" target="_blank" class="btn-wa">💬 ${item.no_hp}</a>`;
+        }
+
         const jsonRow = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;"); 
 
         tbody.innerHTML += `
@@ -777,7 +750,8 @@
             <td>${statusBadge}</td>
             <td>${item.tgl_kunjungan || '-'}</td>
             <td><b>Rp ${Number(item.potensi_revenue || 0).toLocaleString('id-ID')}</b></td>
-            <td><small>${item.kontak_person || '-'}</small></td>
+            <td>${item.nama_kontak || '-'}</td>
+            <td>${waButton}</td>
             <td>
               <button onclick='bukaModalCatatan(${jsonRow})' class="btn btn-info" style="padding:4px 8px; font-size:11px;">
                 📝 Catatan
@@ -795,7 +769,7 @@
     }
 
     // ==========================================
-    // 5. SIMPAN & UPDATE DATA SEKOLAH
+    // SIMPAN & UPDATE DATA
     // ==========================================
     async function simpanSekolah() {
       const editId = document.getElementById('editId').value; 
@@ -807,17 +781,13 @@
         potensi_revenue: parseFloat(document.getElementById('potensiRevenue').value) || 0, 
         latitude: parseFloat(document.getElementById('latitude').value) || 0, 
         longitude: parseFloat(document.getElementById('longitude').value) || 0, 
-        kontak_person: document.getElementById('kontakPerson').value, 
+        nama_kontak: document.getElementById('namaKontak').value, 
+        no_hp: document.getElementById('noHp').value, 
         catatan: document.getElementById('catatan').value 
       };
 
-      if (!payload.nama_sekolah) {
-        return alert("Nama sekolah wajib diisi!"); 
-      }
-
-      if (!payload.latitude || !payload.longitude) {
-        return alert("Silakan isi Latitude & Longitude, pilih di peta, atau klik 'Lokasi Saya Saat Ini'!"); 
-      }
+      if (!payload.nama_sekolah) return alert("Nama sekolah wajib diisi!"); 
+      if (!payload.latitude || !payload.longitude) return alert("Isi Latitude & Longitude!"); 
 
       let error;
       if (editId) {
@@ -845,7 +815,8 @@
       document.getElementById('potensiRevenue').value = item.potensi_revenue || 0; 
       document.getElementById('latitude').value = item.latitude; 
       document.getElementById('longitude').value = item.longitude; 
-      document.getElementById('kontakPerson').value = item.kontak_person || ''; 
+      document.getElementById('namaKontak').value = item.nama_kontak || item.kontak_person || ''; 
+      document.getElementById('noHp').value = item.no_hp || ''; 
       document.getElementById('catatan').value = item.catatan || ''; 
 
       document.getElementById('formTitle').innerText = "Update Data Sekolah"; 
@@ -856,7 +827,7 @@
     }
 
     async function hapusSekolah(id) {
-      if(!confirm("Apakah kamu yakin ingin menghapus data sekolah ini?")) return; 
+      if(!confirm("Yakin hapus sekolah ini?")) return; 
       const { error } = await supabaseClient.from('sekolah_visits').delete().eq('id', id); 
       if(error) alert("Gagal hapus: " + error.message); 
       else loadSekolahData();
@@ -869,7 +840,8 @@
       document.getElementById('potensiRevenue').value = ''; 
       document.getElementById('latitude').value = ''; 
       document.getElementById('longitude').value = ''; 
-      document.getElementById('kontakPerson').value = ''; 
+      document.getElementById('namaKontak').value = ''; 
+      document.getElementById('noHp').value = ''; 
       document.getElementById('catatan').value = ''; 
       document.getElementById('statusKunjungan').value = 'Belum Di-visit';
 
@@ -879,7 +851,7 @@
     }
 
     // ==========================================
-    // 6. MODAL CATATAN KHUSUS SEKOLAH
+    // MODAL CATATAN
     // ==========================================
     function bukaModalCatatan(item) {
       document.getElementById('modalSchoolId').value = item.id;
@@ -904,7 +876,7 @@
       if (error) {
         alert("Gagal memperbarui catatan: " + error.message);
       } else {
-        alert("Catatan sekolah berhasil diperbarui!");
+        alert("Catatan berhasil diperbarui!");
         tutupModalCatatan();
         loadSekolahData();
       }
