@@ -311,6 +311,17 @@
       white-space: nowrap;
     }
 
+    .school-link {
+      color: #2e7d32;
+      font-weight: 700;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .school-link:hover {
+      color: #10b981;
+    }
+
     .action-group {
       display: flex;
       gap: 10px;
@@ -506,7 +517,6 @@
     let userLocation = null; 
     let currentSchoolsData = [];
 
-    // Names Month ID
     const namaBulan = [
       "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
       "Juli", "Agustus", "September", "Oktober", "November", "Desember"
@@ -622,6 +632,25 @@
       return R * c; 
     }
 
+    // AUTO-LOAD & FOCUS PETA SAAT NAMA SEKOLAH DIKLIK
+    function fokusKePeta(lat, lng) {
+      if (!lat || !lng) return alert("Koordinat lokasi tidak valid!");
+
+      map.flyTo([lat, lng], 16, {
+        animate: true,
+        duration: 1.5
+      });
+
+      markers.forEach(marker => {
+        const pos = marker.getLatLng();
+        if (Math.abs(pos.lat - lat) < 0.0001 && Math.abs(pos.lng - lng) < 0.0001) {
+          marker.openPopup();
+        }
+      });
+
+      document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+    }
+
     // ==========================================
     // 4. LOAD & RENDER DATA SEKOLAH & REVENUE
     // ==========================================
@@ -647,7 +676,7 @@
 
     function hitungRevenueBulanIni() {
       const now = new Date();
-      const currentMonth = now.getMonth(); // 0 - 11
+      const currentMonth = now.getMonth(); 
       const currentYear = now.getFullYear();
 
       document.getElementById('statTitleBulan').innerText = `Total Revenue (${namaBulan[currentMonth]} ${currentYear})`;
@@ -656,11 +685,9 @@
       let closingCount = 0;
 
       currentSchoolsData.forEach(item => {
-        // Cek jika status closing done dan ada tanggal kunjungan
         if (item.status_kunjungan === 'Closing done' && item.tgl_kunjungan) {
           const tglVisit = new Date(item.tgl_kunjungan);
           
-          // Pengecekan persis Bulan dan Tahun berjalan
           if (tglVisit.getMonth() === currentMonth && tglVisit.getFullYear() === currentYear) {
             totalRevenue += Number(item.potensi_revenue || 0);
             closingCount++;
@@ -694,7 +721,6 @@
           ? `${item.distance.toFixed(1)} km` 
           : '-'; 
 
-        // Badges Status Baru
         let statusBadge = '';
         if (item.status_kunjungan === 'Closing done') {
           statusBadge = `<span class="badge badge-closing">Closing Done</span>`;
@@ -711,7 +737,11 @@
         tbody.innerHTML += `
           <tr>
             <td class="distance-tag">📍 ${distanceText}</td>
-            <td><b>${item.nama_sekolah}</b></td>
+            <td>
+              <a href="javascript:void(0)" onclick="fokusKePeta(${item.latitude}, ${item.longitude})" class="school-link">
+                ${item.nama_sekolah}
+              </a>
+            </td>
             <td>${statusBadge}</td>
             <td>${item.tgl_kunjungan || '-'}</td>
             <td><b>Rp ${Number(item.potensi_revenue || 0).toLocaleString('id-ID')}</b></td>
@@ -786,7 +816,6 @@
       document.getElementById('btnSimpanSekolah').innerText = "Update Data"; 
       document.getElementById('btnBatal').style.display = 'inline-flex';
       
-      // Scroll smooth ke form
       document.getElementById('formTitle').scrollIntoView({ behavior: 'smooth' });
     }
 
