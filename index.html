@@ -281,6 +281,68 @@
       border-bottom: 1px solid #dce5df;
     }
 
+    /* CONTROLS (SORT & PAGINATION) */
+    .table-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-group label {
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .control-group select {
+      padding: 8px 12px;
+      font-size: 12px;
+      width: auto;
+    }
+
+    .pagination-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+      font-size: 12px;
+      color: #4a5568;
+    }
+
+    .pagination-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-page {
+      background: #e6eee9;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #2e7d32;
+      cursor: pointer;
+      box-shadow: 3px 3px 6px #c8d3cc, -3px -3px 6px #ffffff;
+    }
+
+    .btn-page:active {
+      box-shadow: inset 2px 2px 4px #c8d3cc, inset -2px -2px 4px #ffffff;
+    }
+
+    .btn-page:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
     /* BADGES STATUS KUNJUNGAN */
     .badge { 
       display: inline-block; 
@@ -439,9 +501,31 @@
       </div>
     </div>
 
-    <!-- TABEL DAFTAR SEKOLAH -->
+    <!-- TABEL DAFTAR SEKOLAH (SEMUA / UTAMA) -->
     <div class="card">
-      <h3>Daftar Sekolah (Urut Jarak Terdekat)</h3>
+      <h3>Daftar Seluruh Sekolah</h3>
+      
+      <!-- CONTROLS: SORTING & PER PAGE -->
+      <div class="table-controls">
+        <div class="control-group">
+          <label>Urutkan:</label>
+          <select id="sortBy" onchange="changeSorting()">
+            <option value="jarak_terdekat">Jarak Terdekat (Default)</option>
+            <option value="jarak_terjauh">Jarak Terjauh</option>
+            <option value="status">Status Kunjungan</option>
+            <option value="nama">Nama Sekolah (A-Z)</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>Tampil:</label>
+          <select id="perPage" onchange="changePerPage()">
+            <option value="5">5 / hal</option>
+            <option value="10" selected>10 / hal</option>
+            <option value="20">20 / hal</option>
+          </select>
+        </div>
+      </div>
+
       <div class="table-responsive">
         <table>
           <thead>
@@ -461,6 +545,60 @@
             <!-- Data Sekolah Di-render Otomatis -->
           </tbody>
         </table>
+      </div>
+
+      <!-- PAGINATION CONTROLS -->
+      <div class="pagination-container">
+        <span id="pageInfo">Menampilkan 0 - 0 dari 0 data</span>
+        <div class="pagination-btns">
+          <button class="btn-page" id="prevBtn" onclick="gantiHalaman(-1)">Sebelumnya</button>
+          <button class="btn-page" id="nextBtn" onclick="gantiHalaman(1)">Berikutnya</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION KHUSUS: CLOSING DONE -->
+    <div class="card" style="border-left: 6px solid #065f46;">
+      <h3 style="color: #065f46;">✨ Section Khusus: Sekolah Closing Done</h3>
+      
+      <div class="table-controls">
+        <div class="control-group">
+          <label>Tampil:</label>
+          <select id="perPageClosing" onchange="changeClosingPerPage()">
+            <option value="5" selected>5 / hal</option>
+            <option value="10">10 / hal</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Jarak</th>
+              <th>Nama Sekolah</th>
+              <th>Status</th>
+              <th>Tgl Visit</th>
+              <th>Revenue</th>
+              <th>Nama Kontak</th>
+              <th>No. HP / WA</th>
+              <th>Catatan</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tabelClosingBody">
+            <!-- Data Closing Done Di-render Otomatis -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINATION CLOSING -->
+      <div class="pagination-container">
+        <span id="pageInfoClosing">Menampilkan 0 - 0 dari 0 data</span>
+        <div class="pagination-btns">
+          <button class="btn-page" id="prevBtnClosing" onclick="gantiHalamanClosing(-1)">Sebelumnya</button>
+          <button class="btn-page" id="nextBtnClosing" onclick="gantiHalamanClosing(1)">Berikutnya</button>
+        </div>
       </div>
     </div>
 
@@ -494,6 +632,14 @@
     let markers = [];
     let userLocation = null; 
     let currentSchoolsData = [];
+
+    // Variabel Pagination & Sorting Utama
+    let currentPage = 1;
+    let itemsPerPage = 10;
+
+    // Variabel Pagination Section Closing Done
+    let currentPageClosing = 1;
+    let itemsPerPageClosing = 5;
 
     const namaBulan = [
       "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
@@ -648,7 +794,7 @@
     }
 
     // ==========================================
-    // LOAD & RENDER DATA
+    // LOAD & RENDER DATA + SORTING & PAGINATION
     // ==========================================
     async function loadSekolahData() {
       const { data, error } = await supabaseClient
@@ -665,9 +811,218 @@
         return { ...item, distance: dist };
       });
 
-      currentSchoolsData.sort((a, b) => a.distance - b.distance); 
-      renderSekolahUI();
+      applySortingAndRender();
       hitungRevenueBulanIni();
+    }
+
+    function changeSorting() {
+      currentPage = 1; // Reset ke halaman 1 saat sorting diubah
+      applySortingAndRender();
+    }
+
+    function changePerPage() {
+      itemsPerPage = parseInt(document.getElementById('perPage').value);
+      currentPage = 1;
+      renderSekolahUI();
+    }
+
+    function changeClosingPerPage() {
+      itemsPerPageClosing = parseInt(document.getElementById('perPageClosing').value);
+      currentPageClosing = 1;
+      renderClosingUI();
+    }
+
+    function applySortingAndRender() {
+      const sortBy = document.getElementById('sortBy').value;
+
+      if (sortBy === 'jarak_terdekat') {
+        currentSchoolsData.sort((a, b) => a.distance - b.distance);
+      } else if (sortBy === 'jarak_terjauh') {
+        currentSchoolsData.sort((a, b) => b.distance - a.distance);
+      } else if (sortBy === 'status') {
+        currentSchoolsData.sort((a, b) => (a.status_kunjungan || '').localeCompare(b.status_kunjungan || ''));
+      } else if (sortBy === 'nama') {
+        currentSchoolsData.sort((a, b) => (a.nama_sekolah || '').localeCompare(b.nama_sekolah || ''));
+      }
+
+      renderMarkers();
+      renderSekolahUI();
+      renderClosingUI();
+    }
+
+    function renderMarkers() {
+      markers.forEach(m => map.removeLayer(m)); 
+      markers = []; 
+
+      currentSchoolsData.forEach(item => {
+        if (item.latitude && item.longitude) {
+          const marker = L.marker([item.latitude, item.longitude]).addTo(map); 
+          marker.bindPopup(`
+            <b style="color:#2e7d32;">${item.nama_sekolah}</b><br>
+            Status: ${item.status_kunjungan}<br>
+            Revenue: Rp ${Number(item.potensi_revenue || 0).toLocaleString('id-ID')}
+          `); 
+          markers.push(marker); 
+        }
+      });
+    }
+
+    function renderSekolahUI() {
+      const tbody = document.getElementById('tabelSekolahBody'); 
+      tbody.innerHTML = ''; 
+
+      const totalData = currentSchoolsData.length;
+      const totalPages = Math.ceil(totalData / itemsPerPage) || 1;
+      
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const paginatedData = currentSchoolsData.slice(startIndex, endIndex);
+
+      if (paginatedData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#718096;">Belum ada data sekolah.</td></tr>`;
+      }
+
+      paginatedData.forEach(item => {
+        const distanceText = item.distance !== 999999 ? `${item.distance.toFixed(1)} km` : '-'; 
+
+        let statusBadge = '';
+        if (item.status_kunjungan === 'Closing done') {
+          statusBadge = `<span class="badge badge-closing">Closing Done</span>`;
+        } else if (item.status_kunjungan === 'Sudah Survey') {
+          statusBadge = `<span class="badge badge-survey">Sudah Survey</span>`;
+        } else if (item.status_kunjungan === 'Sudah Di-visit') {
+          statusBadge = `<span class="badge badge-visit">Sudah Di-visit</span>`;
+        } else {
+          statusBadge = `<span class="badge badge-belum">Belum Di-visit</span>`;
+        }
+
+        let waButton = '-';
+        if (item.no_hp) {
+          let cleanPhone = item.no_hp.replace(/[^0-9]/g, '');
+          if (cleanPhone.startsWith('0')) {
+            cleanPhone = '62' + cleanPhone.slice(1);
+          }
+          waButton = `<a href="https://wa.me/${cleanPhone}" target="_blank" class="btn-wa">📱 ${item.no_hp}</a>`;
+        }
+
+        const jsonRow = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;"); 
+
+        tbody.innerHTML += `
+          <tr>
+            <td class="distance-tag">📍 ${distanceText}</td>
+            <td>
+              <a href="javascript:void(0)" onclick="fokusKePeta(${item.latitude}, ${item.longitude})" class="school-link">
+                ${item.nama_sekolah}
+              </a>
+            </td>
+            <td>${statusBadge}</td>
+            <td>${item.tgl_kunjungan || '-'}</td>
+            <td><b>Rp ${Number(item.potensi_revenue || 0).toLocaleString('id-ID')}</b></td>
+            <td>${item.nama_kontak || '-'}</td>
+            <td>${waButton}</td>
+            <td>
+              <button onclick='bukaModalCatatan(${jsonRow})' class="btn btn-info" style="padding:4px 8px; font-size:11px;">
+                📋 Catatan
+              </button>
+            </td>
+            <td>
+              <div style="display:flex; gap:6px;">
+                <button onclick='editSekolah(${jsonRow})' class="btn" style="padding:5px 10px; font-size:11px;">Update</button>
+                <button onclick='hapusSekolah(${item.id})' class="btn btn-danger" style="padding:5px 10px; font-size:11px;">Hapus</button>
+              </div>
+            </td>
+          </tr>
+        `; 
+      });
+
+      // Update Info & Status Tombol Pagination Utama
+      const displayStart = totalData === 0 ? 0 : startIndex + 1;
+      const displayEnd = Math.min(endIndex, totalData);
+      document.getElementById('pageInfo').innerText = `Menampilkan ${displayStart} - ${displayEnd} dari ${totalData} data (Hal ${currentPage}/${totalPages})`;
+      document.getElementById('prevBtn').disabled = currentPage === 1;
+      document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+    }
+
+    function renderClosingUI() {
+      const tbody = document.getElementById('tabelClosingBody'); 
+      tbody.innerHTML = ''; 
+
+      const closingData = currentSchoolsData.filter(item => item.status_kunjungan === 'Closing done');
+      const totalData = closingData.length;
+      const totalPages = Math.ceil(totalData / itemsPerPageClosing) || 1;
+
+      if (currentPageClosing > totalPages) currentPageClosing = totalPages;
+      if (currentPageClosing < 1) currentPageClosing = 1;
+
+      const startIndex = (currentPageClosing - 1) * itemsPerPageClosing;
+      const endIndex = startIndex + itemsPerPageClosing;
+      const paginatedData = closingData.slice(startIndex, endIndex);
+
+      if (paginatedData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#718096;">Belum ada sekolah yang closing done.</td></tr>`;
+      }
+
+      paginatedData.forEach(item => {
+        const distanceText = item.distance !== 999999 ? `${item.distance.toFixed(1)} km` : '-'; 
+        const statusBadge = `<span class="badge badge-closing">Closing Done</span>`;
+
+        let waButton = '-';
+        if (item.no_hp) {
+          let cleanPhone = item.no_hp.replace(/[^0-9]/g, '');
+          if (cleanPhone.startsWith('0')) {
+            cleanPhone = '62' + cleanPhone.slice(1);
+          }
+          waButton = `<a href="https://wa.me/${cleanPhone}" target="_blank" class="btn-wa">📱 ${item.no_hp}</a>`;
+        }
+
+        const jsonRow = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;"); 
+
+        tbody.innerHTML += `
+          <tr>
+            <td class="distance-tag">📍 ${distanceText}</td>
+            <td>
+              <a href="javascript:void(0)" onclick="fokusKePeta(${item.latitude}, ${item.longitude})" class="school-link">
+                ${item.nama_sekolah}
+              </a>
+            </td>
+            <td>${statusBadge}</td>
+            <td>${item.tgl_kunjungan || '-'}</td>
+            <td><b>Rp ${Number(item.potensi_revenue || 0).toLocaleString('id-ID')}</b></td>
+            <td>${item.nama_kontak || '-'}</td>
+            <td>${waButton}</td>
+            <td>
+              <button onclick='bukaModalCatatan(${jsonRow})' class="btn btn-info" style="padding:4px 8px; font-size:11px;">
+                📋 Catatan
+              </button>
+            </td>
+            <td>
+              <div style="display:flex; gap:6px;">
+                <button onclick='editSekolah(${jsonRow})' class="btn" style="padding:5px 10px; font-size:11px;">Update</button>
+                <button onclick='hapusSekolah(${item.id})' class="btn btn-danger" style="padding:5px 10px; font-size:11px;">Hapus</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      const displayStart = totalData === 0 ? 0 : startIndex + 1;
+      const displayEnd = Math.min(endIndex, totalData);
+      document.getElementById('pageInfoClosing').innerText = `Menampilkan ${displayStart} - ${displayEnd} dari ${totalData} data (Hal ${currentPageClosing}/${totalPages})`;
+      document.getElementById('prevBtnClosing').disabled = currentPageClosing === 1;
+      document.getElementById('nextBtnClosing').disabled = currentPageClosing >= totalPages;
+    }
+
+    function gantiHalaman(direction) {
+      currentPage += direction;
+      renderSekolahUI();
+    }
+
+    function gantiHalamanClosing(direction) {
+      currentPageClosing += direction;
+      renderClosingUI();
     }
 
     function hitungRevenueBulanIni() {
@@ -692,80 +1047,6 @@
 
       document.getElementById('totalRevenueBulanIni').innerText = `Rp ${totalRevenue.toLocaleString('id-ID')}`;
       document.getElementById('totalClosingCount').innerText = `${closingCount} Sekolah Closing Done Bulan Ini`;
-    }
-
-    function renderSekolahUI() {
-      markers.forEach(m => map.removeLayer(m)); 
-      markers = []; 
-
-      const tbody = document.getElementById('tabelSekolahBody'); 
-      tbody.innerHTML = ''; 
-
-      currentSchoolsData.forEach(item => {
-        if (item.latitude && item.longitude) {
-          const marker = L.marker([item.latitude, item.longitude]).addTo(map); 
-          marker.bindPopup(`
-            <b style="color:#2e7d32;">${item.nama_sekolah}</b><br>
-            Status: ${item.status_kunjungan}<br>
-            Revenue: Rp ${Number(item.potensi_revenue || 0).toLocaleString('id-ID')}
-          `); 
-          markers.push(marker); 
-        }
-
-        const distanceText = item.distance !== 999999 
-          ? `${item.distance.toFixed(1)} km` 
-          : '-'; 
-
-        let statusBadge = '';
-        if (item.status_kunjungan === 'Closing done') {
-          statusBadge = `<span class="badge badge-closing">Closing Done</span>`;
-        } else if (item.status_kunjungan === 'Sudah Survey') {
-          statusBadge = `<span class="badge badge-survey">Sudah Survey</span>`;
-        } else if (item.status_kunjungan === 'Sudah Di-visit') {
-          statusBadge = `<span class="badge badge-visit">Sudah Di-visit</span>`;
-        } else {
-          statusBadge = `<span class="badge badge-belum">Belum Di-visit</span>`;
-        }
-
-        // Format link WhatsApp jika ada nomor HP
-        let waButton = '-';
-        if (item.no_hp) {
-          let cleanPhone = item.no_hp.replace(/[^0-9]/g, '');
-          if (cleanPhone.startsWith('0')) {
-            cleanPhone = '62' + cleanPhone.slice(1);
-          }
-          waButton = `<a href="https://wa.me/${cleanPhone}" target="_blank" class="btn-wa">💬 ${item.no_hp}</a>`;
-        }
-
-        const jsonRow = JSON.stringify(item).replace(/'/g, "&apos;").replace(/"/g, "&quot;"); 
-
-        tbody.innerHTML += `
-          <tr>
-            <td class="distance-tag">📍 ${distanceText}</td>
-            <td>
-              <a href="javascript:void(0)" onclick="fokusKePeta(${item.latitude}, ${item.longitude})" class="school-link">
-                ${item.nama_sekolah}
-              </a>
-            </td>
-            <td>${statusBadge}</td>
-            <td>${item.tgl_kunjungan || '-'}</td>
-            <td><b>Rp ${Number(item.potensi_revenue || 0).toLocaleString('id-ID')}</b></td>
-            <td>${item.nama_kontak || '-'}</td>
-            <td>${waButton}</td>
-            <td>
-              <button onclick='bukaModalCatatan(${jsonRow})' class="btn btn-info" style="padding:4px 8px; font-size:11px;">
-                📝 Catatan
-              </button>
-            </td>
-            <td>
-              <div style="display:flex; gap:6px;">
-                <button onclick='editSekolah(${jsonRow})' class="btn" style="padding:5px 10px; font-size:11px;">Update</button>
-                <button onclick='hapusSekolah(${item.id})' class="btn btn-danger" style="padding:5px 10px; font-size:11px;">Hapus</button>
-              </div>
-            </td>
-          </tr>
-        `; 
-      });
     }
 
     // ==========================================
